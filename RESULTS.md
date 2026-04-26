@@ -412,3 +412,22 @@ caveat — this experiment holds optimizer **steps** fixed, not samples
 seen, so larger batches see strictly more data. The headline finding is
 therefore "the toy task is data-bound, not step-bound", which is exactly
 what we'd expect at this model size.
+
+### model_size_scaling.py — dim in {32, 64, 128} (params 31k -> 99k -> 387k)
+
+| dim | params | eval_ce (mean +/- std) | rev_acc% |
+|---|---|---|---|
+| 32  |  30,718 | 3.2794 +/- 0.0204 | 18.90 +/- 1.69 |
+| 64  |  99,294 | 3.1913 +/- 0.0518 | 27.43 +/- 1.88 |
+| 128 | 386,734 | 3.1944 +/- 0.0099 | 28.27 +/- 0.45 |
+
+Two clean findings:
+
+1. **dim=32 -> dim=64 is a real win**: ce_drop = 0.088 nats (z = 3.74).
+2. **dim=64 -> dim=128 is a plateau**: identical CE within seed noise,
+   and the larger model has *lower* variance (std 0.010 vs 0.052) but
+   doesn't improve the mean.
+
+So at fixed STEPS/BATCH/n_loops the toy task **saturates around dim=64**.
+The model_size_scaling experiment confirms what batch_size_curve already
+suggested: this task is data-bound, not capacity-bound.

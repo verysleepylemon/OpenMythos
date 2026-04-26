@@ -68,5 +68,8 @@ jobs:
       - name: Run lora_adapter_ablation
         run: python -m scripts.lora_adapter_ablation
 
+      - name: Run kv_cache_speed
+        run: python -m scripts.kv_cache_speed
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

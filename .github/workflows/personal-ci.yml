@@ -80,5 +80,8 @@ jobs:
       - name: Run router_balance_loss
         run: python -m scripts.router_balance_loss
 
+      - name: Run seed_robustness
+        run: python -m scripts.seed_robustness
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

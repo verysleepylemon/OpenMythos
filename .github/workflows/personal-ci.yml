@@ -32,6 +32,9 @@ jobs:
       - name: Run pytest smoke suite
         run: python -m pytest tests/test_smoke.py -v
 
+      - name: Run pytest invariant suite
+        run: python -m pytest tests/test_invariants.py -v
+
       - name: Run quick_demo
         run: python -m scripts.quick_demo
 

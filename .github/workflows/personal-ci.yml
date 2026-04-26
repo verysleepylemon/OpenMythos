@@ -56,5 +56,8 @@ jobs:
       - name: Run early_exit.py
         run: python scripts/early_exit.py
 
+      - name: Run loops_grad_study.py
+        run: python scripts/loops_grad_study.py
+
       - name: Run profile_trace.py
         run: python scripts/profile_trace.py

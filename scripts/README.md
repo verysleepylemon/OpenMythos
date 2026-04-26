@@ -1,0 +1,73 @@
+# Personal branch — script index
+
+All scripts here are CPU-only, no `numpy` / `transformers` / `datasets`,
+runnable with `python -m scripts.X` from the repo root.
+The full personal CI matrix runs in well under a minute on a free runner.
+
+For the narrative walkthrough that ties these together, read
+[`docs/PERSONAL_WALKTHROUGH.md`](../docs/PERSONAL_WALKTHROUGH.md).
+
+For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
+
+## Index
+
+| # | Script | Category | What it shows |
+|---|--------|----------|---------------|
+| 1 | `quick_demo.py` | smoke | First end-to-end forward on random tokens. |
+| 2 | `sweep_loops.py` | depth | Output distribution shifts with `n_loops` at inference time. |
+| 3 | `bench_attention.py` | attention | MLA vs GQA wall-time comparison (forward + generate). |
+| 4 | `train_copy_task.py` | training | Canonical reverse-copy training recipe (the one everyone reuses). |
+| 5 | `sample.py` | sampling | Greedy / low-T / balanced / high-T / wide-top-k decoding paths. |
+| 6 | `depth_extrapolation.py` | depth | Train at K=3, eval K∈[1..32]; KL collapses to 0 by K=4. |
+| 7 | `expert_usage.py` | MoE | Raw routing distribution; reveals imbalance without an LB loss. |
+| 8 | `save_load.py` | infra | State_dict round-trip is bit-identical (params + greedy decode). |
+| 9 | `early_exit.py` | inference | Per-token KL halting saves ~60% compute with no accuracy loss. |
+| 10 | `loops_grad_study.py` | depth | Single-seed sweep of `n_loops` with grad norms and ρ(A_disc). |
+| 11 | `extrapolate_seq_len.py` | extrapolation | Train at PL=6, eval up to PL=12; ~14% at extrapolated lengths. |
+| 12 | `router_collapse_check.py` | MoE | Formal entropy/Gini metrics at INIT/MID/FINAL — drift then collapse. |
+| 13 | `lora_adapter_ablation.py` | adapter | LoRA rank sweep — negative result: rank doesn't matter on toy task. |
+| 14 | `kv_cache_speed.py` | inference | Cached vs full-recompute decoding; 1.20× speedup, exact match. |
+| 15 | `attention_variant_compare.py` | attention | Train MLA vs GQA matched; both learn, gap below seed noise. |
+| 16 | `router_balance_loss.py` | MoE | Adding LB loss collapses gini 0.37 → 0.11 (strong positive). |
+| 17 | `seed_robustness.py` | depth | Multi-seed: single-seed `n=4` win was seed noise. |
+| 18 | `cosine_lr_warmup.py` | training | Flat vs cosine+warmup; flat slightly wins on this short toy budget. |
+| 19 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+
+## Tests
+
+| File | What it asserts |
+|------|-----------------|
+| `tests/test_smoke.py` | Model builds, forward shapes, both attn variants produce real distributions. |
+| `tests/test_invariants.py` | 5 hard invariants: causal mask, KV cache exact, KL monotone, ρ<1, LoRA clamp. |
+
+## Common pattern
+
+Every script:
+
+```python
+from scripts._common import OpenMythos, build_tiny_mla_config
+
+cfg = build_tiny_mla_config()
+cfg.vocab_size = VOCAB
+cfg.max_seq_len = SEQ_LEN
+cfg.max_loop_iters = N_LOOPS
+model = OpenMythos(cfg)
+# ... train / eval / measure ...
+print("[name] OK")
+```
+
+The shared loader in `scripts/_common.py` bypasses the package
+`__init__.py` (which eagerly imports `transformers`). It's the single
+landmine that makes the entire CPU-only pipeline work.
+
+## Headline findings (so far)
+
+- **Architecture is stable.** ρ(A_disc) < 1 across all seeds; KL converges
+  with depth; depth-extrapolation works to at least K=32.
+- **MoE collapses without help.** Auxiliary load-balancing loss is mandatory
+  (gini 0.37 → 0.11 with `LB_COEF=0.05`).
+- **Single-seed wins are usually noise.** The toy task can validate
+  abstractions but cannot discriminate hyperparameter values; always re-run
+  with multiple seeds.
+- **KV cache is exact, not just approximate.** The invariant test asserts
+  raw-logit equality with the full forward pass.

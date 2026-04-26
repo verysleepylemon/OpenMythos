@@ -83,5 +83,8 @@ jobs:
       - name: Run seed_robustness
         run: python -m scripts.seed_robustness
 
+      - name: Run cosine_lr_warmup
+        run: python -m scripts.cosine_lr_warmup
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

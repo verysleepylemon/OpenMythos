@@ -32,32 +32,32 @@ jobs:
       - name: Run pytest smoke suite
         run: python -m pytest tests/test_smoke.py -v
 
-      - name: Run quick_demo.py
-        run: python scripts/quick_demo.py
+      - name: Run quick_demo
+        run: python -m scripts.quick_demo
 
-      - name: Run sweep_loops.py
-        run: python scripts/sweep_loops.py
+      - name: Run sweep_loops
+        run: python -m scripts.sweep_loops
 
-      - name: Run bench_attention.py
-        run: python scripts/bench_attention.py
+      - name: Run bench_attention
+        run: python -m scripts.bench_attention
 
-      - name: Run train_copy_task.py
-        run: python scripts/train_copy_task.py
+      - name: Run train_copy_task
+        run: python -m scripts.train_copy_task
 
-      - name: Run depth_extrapolation.py
-        run: python scripts/depth_extrapolation.py
+      - name: Run depth_extrapolation
+        run: python -m scripts.depth_extrapolation
 
-      - name: Run expert_usage.py
-        run: python scripts/expert_usage.py
+      - name: Run expert_usage
+        run: python -m scripts.expert_usage
 
-      - name: Run save_load.py
-        run: python scripts/save_load.py
+      - name: Run save_load
+        run: python -m scripts.save_load
 
-      - name: Run early_exit.py
-        run: python scripts/early_exit.py
+      - name: Run early_exit
+        run: python -m scripts.early_exit
 
-      - name: Run loops_grad_study.py
-        run: python scripts/loops_grad_study.py
+      - name: Run loops_grad_study
+        run: python -m scripts.loops_grad_study
 
-      - name: Run profile_trace.py
-        run: python scripts/profile_trace.py
+      - name: Run profile_trace
+        run: python -m scripts.profile_trace

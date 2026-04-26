@@ -86,5 +86,8 @@ jobs:
       - name: Run cosine_lr_warmup
         run: python -m scripts.cosine_lr_warmup
 
+      - name: Run weight_decay_ablation
+        run: python -m scripts.weight_decay_ablation
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

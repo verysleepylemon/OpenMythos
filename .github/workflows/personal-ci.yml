@@ -65,5 +65,8 @@ jobs:
       - name: Run router_collapse_check
         run: python -m scripts.router_collapse_check
 
+      - name: Run lora_adapter_ablation
+        run: python -m scripts.lora_adapter_ablation
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

@@ -7,51 +7,20 @@ of the recurrent injection matrix (must be < 1 for the loop to be contractive).
 
 from __future__ import annotations
 
-import importlib.util
 import sys
 from pathlib import Path
 
-import torch
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-# Load open_mythos.main directly to avoid the package __init__.py pulling
-# in optional heavy deps (transformers / datasets) that aren't needed for
-# the core model smoke test.
-_MAIN_PATH = Path(__file__).resolve().parent.parent / "open_mythos" / "main.py"
-_spec = importlib.util.spec_from_file_location("open_mythos_main", _MAIN_PATH)
-_mod = importlib.util.module_from_spec(_spec)
-sys.modules["open_mythos_main"] = _mod
-_spec.loader.exec_module(_mod)
-MythosConfig = _mod.MythosConfig
-OpenMythos = _mod.OpenMythos
+import torch  # noqa: E402
 
-
-def build_tiny_mla_config() -> MythosConfig:
-    return MythosConfig(
-        vocab_size=256,
-        dim=64,
-        n_heads=4,
-        max_seq_len=32,
-        max_loop_iters=2,
-        prelude_layers=1,
-        coda_layers=1,
-        n_experts=4,
-        n_shared_experts=1,
-        n_experts_per_tok=2,
-        expert_dim=32,
-        lora_rank=4,
-        attn_type="mla",
-        n_kv_heads=4,
-        kv_lora_rank=16,
-        q_lora_rank=32,
-        qk_rope_head_dim=8,
-        qk_nope_head_dim=8,
-        v_head_dim=8,
-    )
+from scripts._common import OpenMythos, build_tiny_mla_config  # noqa: E402
 
 
 def main() -> None:
     torch.manual_seed(0)
     cfg = build_tiny_mla_config()
+    cfg.max_loop_iters = 2
     model = OpenMythos(cfg)
     model.eval()
 

@@ -1,0 +1,45 @@
+name: personal-ci
+
+# Runs the personal smoke tests + scripts on the personal branch.
+# Lightweight: CPU-only torch, no transformers / datasets / numpy. Should
+# finish in well under a minute.
+
+on:
+  push:
+    branches: [personal]
+  pull_request:
+    branches: [personal]
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install minimal deps
+        run: |
+          python -m pip install --upgrade pip
+          # CPU-only torch wheel keeps install under a minute.
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu "torch==2.5.1+cpu"
+          python -m pip install pytest
+
+      - name: Run pytest smoke suite
+        run: python -m pytest tests/test_smoke.py -v
+
+      - name: Run quick_demo.py
+        run: python scripts/quick_demo.py
+
+      - name: Run sweep_loops.py
+        run: python scripts/sweep_loops.py
+
+      - name: Run bench_attention.py
+        run: python scripts/bench_attention.py
+
+      - name: Run train_copy_task.py
+        run: python scripts/train_copy_task.py

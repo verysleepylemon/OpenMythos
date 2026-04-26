@@ -8,14 +8,15 @@ stabilize. This script measures that convergence on CPU.
 
 from __future__ import annotations
 
-import torch
-import torch.nn.functional as F
-
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from scripts.quick_demo import OpenMythos, build_tiny_mla_config
+
+import torch  # noqa: E402
+import torch.nn.functional as F  # noqa: E402
+
+from scripts._common import OpenMythos, build_tiny_mla_config  # noqa: E402
 
 
 def main() -> None:

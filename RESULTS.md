@@ -252,6 +252,83 @@ KV-cached decoding is faster and produces bit-identical greedy outputs. The
 speedup is modest at this tiny scale (model forward dominated by overhead);
 it grows with both prompt length and gen length.
 
+## attention_variant_compare.py (MLA vs GQA, matched training)
+
+`bench_attention.py` only times forward passes. This script trains a tiny
+model under each `attn_type` setting on the reverse-copy task with identical
+hyperparameters and confirms both attention variants are real drop-ins:
+
+```
+  attn  params         step50    step100   step200   eval_ce   rev_acc%  wall_s
+  MLA     99,294      3.4043    3.2918    3.2916    3.2250    27.31      8.3
+  GQA    109,902      3.3749    3.2576    3.1871    3.1837    29.20      7.5
+[attn] eval_ce delta (GQA - MLA): -0.0413
+[attn] verdict: variants are within noise on this toy task
+```
+
+Both variants learn (eval_ce well below `log(32) ≈ 3.466`). The 0.04 nat gap
+is below the per-seed noise reported by `seed_robustness.py` (~0.03–0.05).
+
+## router_balance_loss.py (auxiliary load-balancing loss)
+
+Train the same tiny model on the same task twice — once with CE only, once
+with CE + 0.05 * Switch-style load-balancing loss
+`L_lb = N * sum_i (f_i * P_i)` — and snapshot expert utilization:
+
+```
+[lb] BASELINE  final_ce=3.2916  H=1.1240 (norm=0.811)  gini=0.3687  dead=0  max_dev=25.0pp
+[lb] BASELINE  expert shares = E0=  2.8%  E1= 26.5%  E2= 20.7%  E3= 50.0%
+[lb] BALANCED  final_ce=3.2273  H=1.3658 (norm=0.985)  gini=0.1123  dead=0  max_dev= 7.3pp
+[lb] BALANCED  expert shares = E0= 32.3%  E1= 21.5%  E2= 27.1%  E3= 19.2%
+[lb] gini change (BALANCED - BASELINE): -0.2564
+[lb] verdict: LB loss measurably reduced router imbalance.
+```
+
+Strong positive result: gini collapses from 0.37 → 0.11, max-deviation from
+25.0pp → 7.3pp, normalized entropy climbs from 0.81 → 0.99 (near uniform),
+and CE *also* improves slightly. This validates the standard fix for the
+collapse pattern observed in `router_collapse_check.py`.
+
+## seed_robustness.py (multi-seed reality check on n_loops)
+
+`loops_grad_study.py` reported n=4 as the best loop count on a single seed.
+This script trains 4 independent seeds at each of `n_loops ∈ {1, 2, 4, 8}`
+and reports mean ± stdev:
+
+```
+ n_loops    eval_ce (mean +/- std)        rev_acc% (mean +/- std)
+     1      3.1795 +/- 0.0468         27.34 +/-  3.21
+     2      3.2141 +/- 0.0306         24.09 +/-  3.17
+     4      3.1944 +/- 0.0315         25.45 +/-  1.81
+     8      3.1966 +/- 0.0285         25.08 +/-  2.50
+[seed] best n_loops=1  ce=3.1795
+[seed] vs n=1 baseline: delta=+0.0000  pooled_std=0.0662  z=0.00
+```
+
+All four loop settings are statistically indistinguishable on this toy task.
+The single-seed n=4 win in `loops_grad_study.py` was seed noise — exactly
+the kind of fluke that multi-seed sweeps are designed to expose. The
+*recurrent depth abstraction* still works (no instability, KL convergence,
+spectral radius < 1, depth-extrapolation OK) — it's just that a 6-token
+reverse task has too little capacity demand to differentiate loop counts.
+
+## tests/test_invariants.py (5 hard model invariants)
+
+The smoke suite checks that things *run*. The invariant suite checks that
+properties hold *exactly* (not just on average):
+
+| Test | What it asserts |
+| --- | --- |
+| `test_causal_mask_isolation` | Perturbing token i changes logits at j ≥ i but is bit-identical at j < i. |
+| `test_kv_cache_logits_match_full_forward` | Token-by-token cached forward equals full-sequence forward in raw logits (max diff < 1e-4). |
+| `test_loop_kl_decreases_monotonically_on_average` | KL(n → n+1) at large n is no larger than at n=1 (contractive recurrence). |
+| `test_spectral_radius_under_one_across_seeds` | ρ(A_disc) < 1 for every seed in {0..4}. |
+| `test_lora_adapter_clamps_loop_index` | Asking for `n_loops=8` when `max_loop_iters=3` does not crash and produces finite logits. |
+
+```
+======================== 5 passed, 1 warning in 1.67s =========================
+```
+
 ## Notes on the Windows environment
 
 - VC++ Redistributable (2015+) is required.

@@ -11,9 +11,11 @@ from __future__ import annotations
 import torch
 import torch.nn.functional as F
 
-from scripts.quick_demo import build_tiny_mla_config
+import sys
+from pathlib import Path
 
-from open_mythos.main import OpenMythos
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from scripts.quick_demo import OpenMythos, build_tiny_mla_config
 
 
 def main() -> None:

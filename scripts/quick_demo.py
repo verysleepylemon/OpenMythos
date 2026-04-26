@@ -7,9 +7,22 @@ of the recurrent injection matrix (must be < 1 for the loop to be contractive).
 
 from __future__ import annotations
 
+import importlib.util
+import sys
+from pathlib import Path
+
 import torch
 
-from open_mythos.main import MythosConfig, OpenMythos
+# Load open_mythos.main directly to avoid the package __init__.py pulling
+# in optional heavy deps (transformers / datasets) that aren't needed for
+# the core model smoke test.
+_MAIN_PATH = Path(__file__).resolve().parent.parent / "open_mythos" / "main.py"
+_spec = importlib.util.spec_from_file_location("open_mythos_main", _MAIN_PATH)
+_mod = importlib.util.module_from_spec(_spec)
+sys.modules["open_mythos_main"] = _mod
+_spec.loader.exec_module(_mod)
+MythosConfig = _mod.MythosConfig
+OpenMythos = _mod.OpenMythos
 
 
 def build_tiny_mla_config() -> MythosConfig:

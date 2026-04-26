@@ -31,7 +31,11 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 16 | `router_balance_loss.py` | MoE | Adding LB loss collapses gini 0.37 → 0.11 (strong positive). |
 | 17 | `seed_robustness.py` | depth | Multi-seed: single-seed `n=4` win was seed noise. |
 | 18 | `cosine_lr_warmup.py` | training | Flat vs cosine+warmup; flat slightly wins on this short toy budget. |
-| 19 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 19 | `weight_decay_ablation.py` | training | AdamW wd in {0, 0.01, 0.1} multi-seed; below-noise effect. |
+| 20 | `grad_clip_ablation.py` | training | clip in {0.5, 1.0, 2.0, no-clip}; clip=0.5 fires 99.8% and hurts. |
+| 21 | `batch_size_curve.py` | training | BATCH 8->64 at fixed STEPS; ce 3.41->2.97 (z=3.71, real win). |
+| 22 | `model_size_scaling.py` | scaling | dim {32, 64, 128}; saturates at dim=64 on the toy task. |
+| 23 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
 
 ## Tests
 

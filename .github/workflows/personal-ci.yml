@@ -89,5 +89,8 @@ jobs:
       - name: Run weight_decay_ablation
         run: python -m scripts.weight_decay_ablation
 
+      - name: Run grad_clip_ablation
+        run: python -m scripts.grad_clip_ablation
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

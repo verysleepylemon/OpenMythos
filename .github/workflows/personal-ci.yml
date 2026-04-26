@@ -74,5 +74,8 @@ jobs:
       - name: Run kv_cache_speed
         run: python -m scripts.kv_cache_speed
 
+      - name: Run attention_variant_compare
+        run: python -m scripts.attention_variant_compare
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

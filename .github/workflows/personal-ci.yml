@@ -59,5 +59,8 @@ jobs:
       - name: Run loops_grad_study
         run: python -m scripts.loops_grad_study
 
+      - name: Run extrapolate_seq_len
+        run: python -m scripts.extrapolate_seq_len
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

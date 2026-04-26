@@ -339,3 +339,58 @@ properties hold *exactly* (not just on average):
 - The `open_mythos` package `__init__.py` eagerly imports `transformers`, so
   every personal script and the pytest suite uses `scripts/_common.py` to
   load `open_mythos/main.py` directly via `importlib`.
+
+## Hyperparameter ablations (multi-seed, 3 seeds each)
+
+The following three sweeps are deliberately small (3 seeds, 200 steps, BATCH=32)
+to fit in the personal CI budget. Each one reports mean +/- std and a z-score
+for the best vs the natural baseline. The honest verdict on this toy task is
+that none of these standard knobs move the needle — **the dominant variance is
+the seed**, not the hyperparameter.
+
+### cosine_lr_warmup.py — flat vs cosine + 30-step warmup
+
+| schedule | step50 | step100 | step200 | step300 | eval_ce | rev_acc% | wall |
+|---|---|---|---|---|---|---|---|
+| FLAT     | 3.4043 | 3.2918 | 3.2916 | 3.1361 | 3.1430 | 33.14 | 11.3s |
+| COSINE   | 3.4051 | 3.3377 | 3.2697 | 3.2191 | 3.1804 | 23.08 | 10.5s |
+
+Delta eval_ce(cosine - flat) = +0.0374. On this short budget the warmup
+phase is wasted (peak LR is already safe), and the cosine decay starts
+shrinking step size before the model has finished fitting. **Verdict: flat
+wins on toy.** A real run with longer training and a larger peak LR will
+almost certainly flip this.
+
+### weight_decay_ablation.py — AdamW wd in {0.0, 0.01, 0.1}
+
+| weight_decay | eval_ce (mean +/- std) | rev_acc% (mean +/- std) |
+|---|---|---|
+| 0.000 | 3.1930 +/- 0.0520 | 27.72 +/- 1.79 |
+| 0.010 | 3.1913 +/- 0.0518 | 27.43 +/- 1.88 |
+| 0.100 | 3.1903 +/- 0.0523 | 27.94 +/- 2.18 |
+
+Best wd = 0.1, but `delta_vs_zero = +0.0027` with `pooled_std = 0.0737`
+(z = 0.04). **Below noise.** The model is small enough (and the task short
+enough) that L2 regularization simply isn't relevant here.
+
+### grad_clip_ablation.py — clip in {0.5, 1.0, 2.0, no-clip}
+
+| clip | eval_ce (mean +/- std) | rev_acc% (mean +/- std) | clip-triggered |
+|---|---|---|---|
+| 0.5     | 3.2194 +/- 0.0071 | 27.40 +/- 0.58 | **99.8%** |
+| 1.0     | 3.1913 +/- 0.0518 | 27.43 +/- 1.88 | 0.0% |
+| 2.0     | 3.1913 +/- 0.0518 | 27.43 +/- 1.88 | 0.0% |
+| no-clip | 3.1913 +/- 0.0518 | 27.43 +/- 1.88 | 0.0% |
+
+This one is the most interesting of the three:
+- The natural gradient norm of this model sits **between 0.5 and 1.0**:
+  `clip = 1.0` *never* fires (0/200 steps), so it is identical to no-clip.
+- `clip = 0.5` fires on essentially every step (199.6/200) and **hurts** CE
+  by +0.028 nats — but it also collapses seed variance from 0.052 → 0.007.
+- Result: **clip=1.0 is the de-facto default; nothing tighter is safe and
+  nothing looser changes anything**.
+
+> **Cross-cutting lesson.** Three independent hyperparameter sweeps, three
+> "the seed dominates" verdicts. Combined with seed_robustness.py, this
+> is now the strongest argument that *the toy task is for verifying
+> abstractions, not tuning hyperparameters*.

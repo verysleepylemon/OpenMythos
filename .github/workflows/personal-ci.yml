@@ -92,5 +92,8 @@ jobs:
       - name: Run grad_clip_ablation
         run: python -m scripts.grad_clip_ablation
 
+      - name: Run batch_size_curve
+        run: python -m scripts.batch_size_curve
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

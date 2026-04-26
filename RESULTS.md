@@ -394,3 +394,21 @@ This one is the most interesting of the three:
 > "the seed dominates" verdicts. Combined with seed_robustness.py, this
 > is now the strongest argument that *the toy task is for verifying
 > abstractions, not tuning hyperparameters*.
+
+### batch_size_curve.py — BATCH in {8, 16, 32, 64} at fixed STEPS=200
+
+| batch | samples_seen | eval_ce (mean +/- std) | rev_acc% |
+|---|---|---|---|
+| 8  | 1,600  | 3.4069 +/- 0.0076 | 13.37 +/- 1.29 |
+| 16 | 3,200  | 3.3013 +/- 0.0037 | 18.76 +/- 1.15 |
+| 32 | 6,400  | 3.1913 +/- 0.0518 | 27.43 +/- 1.88 |
+| 64 | 12,800 | 2.9669 +/- 0.1183 | 37.73 +/- 5.25 |
+
+`delta_ce(8 -> 64) = -0.440`, `pooled_std = 0.119`, **z = 3.71**.
+
+Unlike the previous three sweeps, this one is **real**: the ce gap is
+4 standard deviations and the accuracy roughly triples. Note the obvious
+caveat — this experiment holds optimizer **steps** fixed, not samples
+seen, so larger batches see strictly more data. The headline finding is
+therefore "the toy task is data-bound, not step-bound", which is exactly
+what we'd expect at this model size.

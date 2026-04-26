@@ -62,5 +62,8 @@ jobs:
       - name: Run extrapolate_seq_len
         run: python -m scripts.extrapolate_seq_len
 
+      - name: Run router_collapse_check
+        run: python -m scripts.router_collapse_check
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

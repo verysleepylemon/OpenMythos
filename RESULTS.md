@@ -1421,3 +1421,37 @@ Practical recipe (depth-aware clipping):
 This also re-contextualizes clip_rescue: the n=2 +5.82pp result
 sat inside the +/-13pp seed variance band; the real clip-sensitive
 regime is n=8.
+## clip_recipe_pl.py - does the n=8 clip=2.0 rescue generalize across pl? (NO)
+
+clip_universal showed clip=2.0 rescues n=8 at pl=12 (+10.12pp).
+clip_recipe_pl tests whether that rescue holds at other prompt
+lengths. Sweep pl in {8, 12, 14} x clip in {1.0, 2.0} at n_loops=8
+dim=128 STEPS=2000, 3 seeds.
+
+Result:
+
+| pl | acc @ clip=1.0   | acc @ clip=2.0    | delta_acc       |
+|----|------------------|-------------------|-----------------|
+| 8  | 99.08 +/- 0.86   | 96.72 +/- 4.03    | -2.36pp <- hurts|
+| 12 | 80.11 +/- 12.39  | **90.23 +/- 6.90**| **+10.12pp**    |
+| 14 | 94.12 +/- 5.66   | 64.46 +/- **34.60** | **-29.65pp** <- catastrophic |
+
+HONEST NEGATIVE FINDING: The depth-aware clip recipe ("clip=2.0
+for n>=8") proposed in clip_universal does NOT generalize across
+prompt lengths.
+
+  - pl=8:  clip=1.0 already near-saturated (99.08%); relaxing
+           clip just adds noise (-2.36pp).
+  - pl=12: rescue real but still inside +/-12pp seed band.
+  - pl=14: clip=2.0 produces +/-34.60pp std - one or more seeds
+           diverge catastrophically. Mean drops 29.65pp.
+
+The pl=12 rescue is a narrow corridor in (n_loops, pl) space, not
+a universal recipe. The honest engineering recommendation reverts
+to: keep clip=1.0 as default for all n_loops; the n=8 valley at
+pl=12 may be a seed-variance artifact masquerading as a regime.
+
+Lesson: at high seed variance, single-(n,pl) rescue claims must
+be cross-validated on the orthogonal axis before being shipped as
+recipes. clip_universal at one pl was insufficient evidence;
+clip_recipe_pl across pl is the kill-test.

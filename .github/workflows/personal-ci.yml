@@ -113,5 +113,8 @@ jobs:
       - name: Run topk_experts_sweep
         run: python -m scripts.topk_experts_sweep
 
+      - name: Run shared_expert_ablation
+        run: python -m scripts.shared_expert_ablation
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

@@ -40,7 +40,8 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 25 | `sort3_loop_sweep.py` | depth | Sort-3 is too easy — n=1 already 99.7% acc; depth doesn't help. |
 | 26 | `lr_peak_curve.py` | training | Peak LR {1e-3, 3e-3, 1e-2}; 3e-3 wins, 1e-2 unstable (3σ worse). |
 | 27 | `topk_experts_sweep.py` | MoE | k in {1,2,3}; k=1 underfits (+0.05 ce, 1.3σ); k=2 = k=3 on ce. |
-| 28 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 28 | `shared_expert_ablation.py` | MoE | n_shared in {0,1,2}; default n_shared=1 wins; 0 and 2 both noisier. |
+| 29 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
 
 ## Tests
 

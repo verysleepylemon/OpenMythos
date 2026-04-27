@@ -505,3 +505,22 @@ Verdict:
 - k=2 and k=3 are tied on ce; k=3 has slightly better acc but pays 20%
   more wall time (19.3s vs 16.1s).
 - The k=2 default in the tiny config sits exactly at the elbow.
+
+### shared_expert_ablation.py
+
+n_shared_experts in {0, 1, 2} on canonical reverse-copy (n_experts=4 routed),
+3 seeds x 200 steps.
+
+  n_shared  eval_ce (mean +/- std)    acc% (mean +/- std)
+    0      1.7295 +/- 0.0495       49.67 +/-  6.33
+    1      1.6799 +/- 0.0174       56.58 +/-  1.45
+    2      1.7222 +/- 0.0650       52.86 +/-  8.99
+
+Verdict:
+- The default n_shared=1 wins on both ce and acc, AND has by far
+  the lowest seed variance (std 0.017 vs 0.050 / 0.065).
+- n_shared=0 (pure routed) underfits and is much noisier.
+- n_shared=2 also degrades; the always-on capacity competes with
+  routed experts and the optimizer has trouble allocating.
+- Combined with topk_experts_sweep, this confirms the tiny config's
+  MoE shape (n=4 routed, k=2, 1 shared) is well-tuned for the task.

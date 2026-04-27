@@ -125,5 +125,8 @@ jobs:
       - name: Run recurrent_vs_stacked
         run: python -m scripts.recurrent_vs_stacked
 
+      - name: Run prelude_coda_depth
+        run: python -m scripts.prelude_coda_depth
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

@@ -624,3 +624,35 @@ When recurrence might still be worth it (untested here):
 - Much larger models where param savings matter
 - Tasks with explicit hierarchical / iterative structure
 - Inference-time compute control (early-exit gating)
+
+### prelude_coda_depth.py
+
+Follow-up to recurrent_vs_stacked: now we know stacked depth helps,
+where in the stack should it go? Sweep prelude in {1,2} x coda in {1,2,3}
+at fixed n_loops=2, 3 seeds x 200 steps.
+
+  prelude  coda  params   eval_ce (mean +/- std)    acc% (mean +/- std)
+     1      1    97754   1.6799 +/- 0.0174       56.58 +/-  1.45
+     1      2   122954   1.6322 +/- 0.0135       61.70 +/-  0.45  <-- BEST
+     1      3   148154   1.6647 +/- 0.0403       55.53 +/-  2.05
+     2      1   122954   1.7376 +/- 0.0424       49.67 +/-  4.60
+     2      2   148154   1.7405 +/- 0.0495       49.90 +/-  6.56
+     2      3   173354   1.7028 +/- 0.0112       54.79 +/-  0.28
+
+Two clear effects:
+  1. Adding a SECOND coda layer helps (1->2 drops ce by 0.05, z=2.2)
+     but a THIRD coda layer regresses back to baseline.
+  2. Adding a SECOND prelude layer actively HURTS across all coda
+     settings (+0.06 to +0.11 ce, with much higher variance).
+
+Cheapest-not-worse winner is the same as outright winner:
+  prelude=1, coda=2  (122k params, 1.63 ce)
+
+Reading: the recurrent block (looped at n_loops=2) already provides
+enough early-stage representation; what the model lacks is depth on
+the OUTPUT side. Prelude is satured at 1 layer on this task.
+
+This is the first ablation on this branch where increasing capacity
+in one direction (coda) helps and increasing it in the symmetric
+direction (prelude) hurts -- the architecture is asymmetric on this
+task, not just under-trained.

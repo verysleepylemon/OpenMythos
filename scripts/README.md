@@ -44,7 +44,8 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 29 | `init_seed_variance.py` | noise | Fix data, vary init only — init explains ALL of the seed-noise budget. |
 | 30 | `longer_training.py` | training | 200→1000 steps drops ce 0.7 (z=8-11); n_loops gap still doesn't open. |
 | 31 | `recurrent_vs_stacked.py` | depth | At K=4, stacked WINS +0.09 ce (z=2.69) for 1.77x params; recurrence buys nothing. |
-| 32 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 32 | `prelude_coda_depth.py` | depth | prelude=1, coda=2 is optimal (ce 1.63 z=2.2 vs 1/1); MORE prelude actively hurts. |
+| 33 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
 
 ## Tests
 

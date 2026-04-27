@@ -38,7 +38,8 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 23 | `eval_helper_smoke.py` | infra | End-to-end smoke for the shared `_eval.py` helper. |
 | 24 | `parity_loop_sweep.py` | depth | Cumulative XOR; all loop counts pinned at chance (Hahn 2020). |
 | 25 | `sort3_loop_sweep.py` | depth | Sort-3 is too easy — n=1 already 99.7% acc; depth doesn't help. |
-| 26 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 26 | `lr_peak_curve.py` | training | Peak LR {1e-3, 3e-3, 1e-2}; 3e-3 wins, 1e-2 unstable (3σ worse). |
+| 27 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
 
 ## Tests
 

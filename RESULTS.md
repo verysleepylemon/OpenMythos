@@ -473,3 +473,19 @@ Verdict: depth gain still within seed noise. Sort-3 is too easy --
 the model hits ~99% sort accuracy at n_loops=1 and extra recurrence
 slightly hurts (more compute, same task, more chance to mis-route).
 A meaningful depth probe would need a longer / less memorizable task.
+
+### lr_peak_curve.py
+
+Peak LR sweep on canonical reverse-copy task (vocab=8, prompt_len=4, n_loops=2),
+3 seeds x 200 steps.
+
+  lr        eval_ce (mean +/- std)    acc% (mean +/- std)
+  1e-03   1.7936 +/- 0.0211       49.92 +/-  1.40
+  3e-03   1.6799 +/- 0.0174       56.58 +/-  1.45
+  1e-02   1.9571 +/- 0.0876       31.45 +/-  8.68
+
+Verdict: 3e-3 (our standard choice) wins on this task.
+- 1e-3 is too small (under-fit, ce 1.79 vs 1.68).
+- 1e-2 is unstable (variance 5x higher; worst mean ce 1.96 with acc 31%).
+This is the first ablation on this branch where the chosen knob is
+actually optimal AND the next-bigger knob is materially worse.

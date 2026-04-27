@@ -107,5 +107,8 @@ jobs:
       - name: Run sort3_loop_sweep
         run: python -m scripts.sort3_loop_sweep
 
+      - name: Run lr_peak_curve
+        run: python -m scripts.lr_peak_curve
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

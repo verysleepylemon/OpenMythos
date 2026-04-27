@@ -143,5 +143,8 @@ jobs:
       - name: Run loops_at_optimal_arch_long
         run: python -m scripts.loops_at_optimal_arch_long
 
+      - name: Run convergence_curve
+        run: python -m scripts.convergence_curve
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

@@ -11,26 +11,28 @@ the per-script numbers in [`../RESULTS.md`](../RESULTS.md).
 
 ## TL;DR
 
-1. **Recurrent depth (`n_loops`) buys nothing on toy tasks at this size.**
-   Triangulated across THREE independent convergent measurements:
-   `seed_robustness` (single-seed wins were init noise), `longer_training`
-   (gap stayed closed across 5x compute), and `loops_at_long_train` (at
-   94% acc convergence, n=4 vs n=1 gap is z=-0.12). This is a real
-   architectural ceiling on this regime, not under-training.
-2. **Stacked depth DOES help** — `recurrent_vs_stacked` shows K=4 stacked
-   beats K=4 recurrent by 0.09 ce (z=2.69), but pays 1.77× more params.
-3. **The architecture is asymmetric.** `prelude_coda_depth` shows
+1. **Recurrent depth (`n_loops`) buys little MEAN ce on toy at this size**
+   on the default architecture (`prelude=2, coda=2`). Triangulated across
+   THREE independent measurements: `seed_robustness`, `longer_training`,
+   and `loops_at_long_train` (at 94% acc convergence, n=4 vs n=1 gap is
+   z=-0.12).
+2. **BUT — at the optimal architecture (`prelude=1, coda=2`),
+   recurrence is a real variance reducer.** `loops_at_optimal_arch`
+   shows ce monotonically improves with loops (n=1 -> n=2 -> n=4) AND
+   stddev collapses 3× (0.041 -> 0.014). This rescues the recurrent
+   design's premise: it needs the right downstream depth to show its
+   stabilization effect.
+3. **Stacked depth still beats recurrent depth on raw ce** —
+   `recurrent_vs_stacked` shows K=4 stacked beats K=4 recurrent by
+   0.09 ce (z=2.69), but pays 1.77× more params.
+4. **The architecture is asymmetric.** `prelude_coda_depth` shows
    `prelude=1, coda=2` is optimal (z=2.16 vs `1/1`); MORE prelude
    actively HURTS (+0.06 to +0.11 ce, with much higher variance).
-   This is the first ablation where increasing capacity in one
-   direction helps and the symmetric direction hurts.
-4. **Init seed is the dominant noise source.** `init_seed_variance`
+5. **Init seed is the dominant noise source.** `init_seed_variance`
    shows fixing data and varying only model init produces *higher*
-   variance than varying both. Any ablation reporting `delta(ce) < 0.026`
-   on this recipe is almost certainly noise.
-5. **Three knobs actually move the needle.** Batch size (z=3.71),
-   training length (z=8-11), and (for routed experts) `n_experts_per_tok=2`
-   over `=1`. Everything else we tried sits at or below the init-noise floor.
+   variance than varying both. Init-noise floor on default recipe = 0.026 ce.
+6. **Three knobs cleanly move the needle.** Batch size (z=3.71),
+   training length (z=8-11), and the asymmetric coda-depth (z=2.16).
 
 ---
 

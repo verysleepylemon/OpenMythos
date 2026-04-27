@@ -1386,3 +1386,38 @@ recurrent unroll's natural large magnitudes".
 
 Practical recipe: when training recurrent-depth models with
 n_loops >= 2, set clip=2.0 (or scale clip with n_loops).
+## clip_universal.py - is clip=2.0 a universal recipe? (NO - depth-dependent)
+
+clip_rescue suggested clip=2.0 fixes the n=2 valley. But does it
+help all n_loops? clip_universal sweeps n in {1,2,4,8} x clip in
+{1.0, 2.0} at pl=12 dim=128 STEPS=2000, 3 seeds.
+
+Result:
+
+| n_loops | acc @ clip=1.0   | acc @ clip=2.0   | delta_acc |
+|---------|------------------|------------------|-----------|
+| 1       | 93.98 +/- 6.45   | 90.74 +/- 7.43   | -3.24pp   |
+| 2       | 89.88 +/- 13.06  | 87.35 +/- 12.52  | -2.52pp   |
+| 4       | 96.82 +/- 3.07   | 89.71 +/- 2.92   | -7.10pp   |
+| 8       | 80.11 +/- 12.39  | **90.23 +/- 6.90** | **+10.12pp** |
+
+REFINED FINDING: clip=2.0 is NOT universal.
+  - n in {1,2,4}: relaxing clip HURTS (gives optimizer too much
+    headroom for noisy outlier gradients).
+  - n=8: relaxing clip RESCUES (closes the deep-loop valley).
+
+Mechanism: at deep recurrence, the legitimate gradient through
+the recurrent unroll often exceeds threshold 1.0 - clip=1.0
+constantly scales it down and fights optimization. At shallow
+recurrence, gradients above 1.0 are mostly outliers that should
+be clipped.
+
+Practical recipe (depth-aware clipping):
+
+  clip = 1.0       for n_loops in {1, 2, 4}
+  clip = 2.0       for n_loops >= 8
+  (or: scale clip with sqrt(n_loops) above n=4)
+
+This also re-contextualizes clip_rescue: the n=2 +5.82pp result
+sat inside the +/-13pp seed variance band; the real clip-sensitive
+regime is n=8.

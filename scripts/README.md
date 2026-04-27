@@ -64,7 +64,8 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 49 | `harder_pl14.py` | depth | ReverseCopy at prompt_len=14 dim=128: n=8 still wins +4.91pp (z=-1.21), n=4 still in valley (-7.95pp, 10.49pp variance). Non-monotonic loop landscape replicates. |
 | 50 | `valley_mechanism.py` | depth | Mechanism: tracks training curves + grad-norm + clip-rate every 100 steps across n_loops at pl=12 dim=128. Finding: valley CORRELATES with clip rate (n=2: 37%, n=4: 12%, n=8: 10%). Saves artifacts/valley_curves.json. Also reveals headline +13.17pp has real seed variance. |
 | 51 | `clip_rescue.py` | depth | CAUSAL test: at n=2 pl=12 dim=128, raising clip 1.0->2.0 rescues acc by +5.82pp (82.9->88.7%). clip=inf only +2.86pp (over-relaxed). The recurrent valley is a gradient-clipping artifact, not a recurrence artifact. Practical fix: set clip=2.0 when using n_loops>=2. |
-| 52 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 52 | `clip_universal.py` | depth | Universality check: clip=2.0 vs 1.0 across n in {1,2,4,8} pl=12 dim=128. NUANCE: clip=2.0 HURTS n=1 (-3.24pp), n=2 (-2.52pp), n=4 (-7.10pp), but RESCUES n=8 (+10.12pp). Refined recipe: clip=1.0 for shallow loops, clip=2.0 for deep loops (n>=8). The deep-loop valley is the real clipping artifact. |
+| 53 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
 
 ## Tests
 

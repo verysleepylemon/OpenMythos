@@ -185,5 +185,8 @@ jobs:
       - name: Run clip_rescue
         run: python -m scripts.clip_rescue
 
+      - name: Run clip_universal
+        run: python -m scripts.clip_universal
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

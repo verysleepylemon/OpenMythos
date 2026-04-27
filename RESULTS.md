@@ -1455,3 +1455,49 @@ Lesson: at high seed variance, single-(n,pl) rescue claims must
 be cross-validated on the orthogonal axis before being shipped as
 recipes. clip_universal at one pl was insufficient evidence;
 clip_recipe_pl across pl is the kill-test.
+## headline_replicate.py - 6-seed audit KILLS the +13.17pp n=8 headline
+
+harder_n8 (3 seeds) reported n=8 +13.17pp acc gain at pl=12 dim=128
+STEPS=2000. clip_universal (3 seeds) already showed n=8 acc=80.11+/-12.39
+- inside the variance band. headline_replicate doubles seed count to 6
+to get a tighter CI on the headline itself.
+
+Result (6 seeds, n_loops in {1,4,8}, pl=12 dim=128 STEPS=2000 clip=1.0):
+
+| n_loops | ce               | acc%             | delta_acc vs n=1 |
+|---------|------------------|------------------|------------------|
+| 1       | 1.1061 +/- 0.079 | **91.74 +/- 6.30** | -                |
+| 4       | 1.1433 +/- 0.169 | 89.53 +/- 12.48  | -2.21pp z=+0.20  |
+| 8       | 1.1826 +/- 0.152 | 85.88 +/- 12.22  | -5.86pp z=+0.45  |
+
+Per-seed n=8 accs: [97.17, 75.00, 68.15, 87.01, 88.80, 99.17] - the
++13.17pp original was three seeds drawn from this distribution that
+happened to cluster high.
+
+CONCLUSION (negative result): At pl=12 dim=128 STEPS=2000 with default
+clip=1.0, recurrent depth does NOT outperform n=1. Both n=4 (-2.21pp,
+z=+0.20) and n=8 (-5.86pp, z=+0.45) are inside the seed-variance band
+and trend NEGATIVE. The +13.17pp harder_n8 headline was a 3-seed
+artifact.
+
+This invalidates HEADLINE finding #7 ("at pl=12 n=8 wins +13.17pp")
+and pushes points #8 and #9 into the "open question" tier rather than
+the "rock solid" tier.
+
+What survives:
+- ARCH point (prelude=1, coda=2 best at modest scale): real, multiple
+  scripts confirm.
+- TASK-DEPENDENT point (Sort NULL, Rotate +6.36pp at pl=8 saturated):
+  real, comes from controlled comparisons at saturated regimes.
+- LOOP-VS-DIFFICULTY point (n=4 +1.87pp at pl=8 dim=128 z=-3.20):
+  this single z=-3.20 result from dim_x_loops_at_hard.py remains the
+  ONLY statistically significant recurrence win on this branch and
+  should be the headline going forward.
+
+What does NOT survive (now in "open question" tier):
+- pl=12 +13.17pp claim (killed here).
+- "depth-aware clipping" recipe (killed by clip_recipe_pl).
+- Non-monotonic valley story (the "valley" was largely seed noise).
+
+Lesson: 3 seeds is not enough at +/-12pp seed std. For any acc gap
+under 2*sigma_pooled, require >=6 seeds before claiming.

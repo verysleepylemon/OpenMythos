@@ -191,5 +191,8 @@ jobs:
       - name: Run clip_recipe_pl
         run: python -m scripts.clip_recipe_pl
 
+      - name: Run headline_replicate
+        run: python -m scripts.headline_replicate
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

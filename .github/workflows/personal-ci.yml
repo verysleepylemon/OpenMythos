@@ -158,5 +158,8 @@ jobs:
       - name: Run u_shape_x_dim
         run: python -m scripts.u_shape_x_dim
 
+      - name: Run sort_task_loops
+        run: python -m scripts.sort_task_loops
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

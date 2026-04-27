@@ -1096,3 +1096,33 @@ Practical recipe at this scale:
   - dim=64,  prompt_len=8: n_loops=2 (cheapest tied winner)
   - dim=128, prompt_len=8: n_loops=4 (statistically best, z=-3.20)
   - n_loops=8 is unsafe at this scale at either width.
+
+## sort_task_loops.py (Sort task at dim=128 prompt_len=8 vocab=8, STEPS=2000, 3 seeds)
+
+  n_loops  eval_ce            acc%
+     1    0.9940+/-0.0080    98.68+/-0.48
+     2    0.9924+/-0.0086    98.74+/-0.60
+     4    0.9917+/-0.0068    98.63+/-0.49
+
+  n>1 advantage vs n=1:
+    n=2: delta_ce=-0.0016  z=-0.14  delta_acc=+0.06pp
+    n=4: delta_ce=-0.0023  z=-0.22  delta_acc=-0.05pp
+
+CLEAN NULL. No recurrence benefit on Sort, in stark contrast to
+ReverseCopy at the same scale (dim=128 prompt_len=8) where n=4
+gave z=-3.20 and +1.87pp acc.
+
+Implication: recurrence is TASK-DEPENDENT, not a general win.
+ReverseCopy benefits; Sort does not. Hypothesis: ReverseCopy
+requires per-position routing that benefits from repeated
+refinement, while Sort is more locally decidable at this scale.
+
+Counter-hypothesis: Sort with vocab=8 prompt_len=8 saturates too
+easily (n=1 already at 98.68%) so there is no headroom to show
+benefit. Future check: harder Sort configs (vocab=32 or
+prompt_len=12) might re-open the gap.
+
+Either way the implication for the wider story stands: 'recurrent
+depth helps' is conditional on (right arch + right compute + hard
+enough task + task that benefits from iteration). The Goldilocks
+zone has FOUR knobs, not one.

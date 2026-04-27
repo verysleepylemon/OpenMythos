@@ -1,11 +1,105 @@
 # Personal Branch — Headline Findings
 
-> Plain-English summary of what we actually learned by running 35+
+> Plain-English summary of what we actually learned by running 50+
 > ablations on the OpenMythos recurrent-depth transformer at tiny
 > scale on toy reverse-copy / parity / sort tasks.
 
 This doc points at the scripts in [`../scripts/`](../scripts/) and
 the per-script numbers in [`../RESULTS.md`](../RESULTS.md).
+
+---
+
+## Confidence tiers (after `headline_replicate` audit, scripts #50-54)
+
+The September push (scripts 47-54) proposed several large recurrence
+wins (+13.17pp at n=8 pl=12) and a "depth-aware clipping" recipe.
+6-seed audits (`headline_replicate`) and cross-pl audits
+(`clip_recipe_pl`) **invalidated** the most exciting of those claims
+as 3-seed cluster artifacts. This section catalogs what survives at
+what confidence level. Read this BEFORE the older TL;DR below; the
+older TL;DR is preserved verbatim for archaeology but contains
+claims downgraded here.
+
+### Rock-solid (z >= 2.5 single ablation, OR replicated across multiple seeds and configs)
+
+- **Default arch (`prelude=2, coda=2`) buys nothing from recurrence
+  on this toy.** Triangulated by `seed_robustness`, `longer_training`,
+  `loops_at_long_train` (z=-0.12 at convergence).
+- **Optimal arch is `prelude=1, coda=2` at modest scale.**
+  `prelude_coda_depth` has z=2.2 vs (1,1); MORE prelude actively hurts.
+- **Recurrence helps at the one (dim, pl) intersection
+  `dim=128, prompt_len=8, n=4`** — the ONLY z<-3 result on this branch
+  (`dim_x_loops_at_hard.py`, z=-3.20, acc +1.87pp). This is the single
+  recurrence win that survives all audits and is the headline going
+  forward.
+- **Task-class matters more than depth.** Sort is NULL/HURTS for all
+  n_loops (`sort_task_loops*`). Routing tasks (ReverseCopy, Rotate)
+  are where recurrence even has a chance to help.
+- **Rotate at saturation: loops only hurt.** `rotate_hard` at pl=12
+  (n=1 already 99.93%) shows n=8 -6.13pp. Real, not seed noise.
+- **Loop advantage scales with task difficulty in the regime where
+  recurrence works at all.** `task_difficulty_scaling` acc gap
+  +0.94/+2.47/+3.11pp at pl=4/6/8.
+- **Routing balance loss collapses gini 0.37 → 0.11**
+  (`router_balance_loss`, strong positive).
+- **Clip=0.5 fires 99.8% and hurts** (`grad_clip_ablation`). The
+  default clip=1.0 is correct.
+
+### Fragile (single-seed-cluster effect, real but with wide CI)
+
+- **Goldilocks zone in STEPS.** `convergence_curve` shows recurrence
+  helps at STEPS=1000-2000 and collapses at 2500. Real, but the
+  acc gaps inside the Goldilocks zone are inside +/-12pp seed bands.
+- **Per-task U-shape at `prompt_len=8` `dim=64`.** n=8 regresses vs
+  n=2/n=4 (`loops_at_hard_task`). Real direction, fragile magnitude.
+- **`loops_at_optimal_arch_long` variance collapse** is a
+  training-dynamics artifact, not steady-state.
+
+### Killed by audit (open questions / DO NOT cite as established)
+
+- **The +13.17pp n=8 win at pl=12 dim=128 (harder_n8) is killed.**
+  `headline_replicate` at 6 seeds gives n=8 = 85.88 +/- 12.22%
+  vs n=1 = 91.74 +/- 6.30% — n=8 actually trends NEGATIVE
+  (-5.86pp, z=+0.45, inside variance band). Per-seed n=8 accs:
+  [97.17, 75.00, 68.15, 87.01, 88.80, 99.17]. The original 3-seed
+  cluster happened to draw three high samples.
+- **The "non-monotonic valley" story (harder_n8 / harder_pl14) is
+  killed for the same reason.** What looked like a valley at
+  intermediate n was the lower tail of the wide n=8 distribution.
+- **The "depth-aware clipping" recipe (clip=2.0 for n>=8) is
+  killed by `clip_recipe_pl`.** At n=8 the rescue is pl=12-only:
+  pl=8 -2.36pp, pl=12 +10.12pp, pl=14 catastrophic -29.65pp
+  (acc std 34.60pp). Recipe does NOT ship; revert to clip=1.0.
+- **`clip_rescue` at n=2 (+5.82pp) was inside +/-13pp seed band**
+  (already disclaimed in `clip_universal`).
+- **`valley_mechanism`'s clip-rate signature is real per-step**
+  but its end-of-training acc numbers are now in question because
+  the "valley" itself is suspect.
+
+### Engineering recipe (post-audit)
+
+- arch: `prelude=1, coda=2` (rock-solid).
+- attn: MLA or GQA, both work matched (`attention_variant_compare`).
+- optimizer: AdamW lr=3e-3, BATCH=32, STEPS=1000-2000.
+- clip: **1.0 always**. Depth-aware clipping does not generalize.
+- n_loops:
+  - default 1.
+  - bump to 4 only at `dim>=128` AND `prompt_len in {6,8}` AND
+    you can run >= 6 seeds to confirm. This is the `dim_x_loops_at_hard`
+    regime, the only z<-3 win on this branch.
+  - do NOT use n_loops>=4 at `pl>=12`: 6-seed audit shows it hurts.
+- moe: `n_experts=2..4` with shared=1 + load-balance loss; topk=2.
+
+### Methodological lesson
+
+At seed std `+/-12pp`, **3 seeds is statistical underwear**. Any
+acc gap under `2 * pooled_sigma` requires `>= 6 seeds` before claiming.
+Several scripts (#47-52) on this branch crossed that line and produced
+3-seed cluster artifacts that looked like big wins. They have all
+been honestly retracted in their respective RESULTS.md sections and
+relocated above into "Killed by audit". The branch's strongest single
+result remains `dim_x_loops_at_hard` (z=-3.20, +1.87pp, single
+ablation but the only z<-3 in the whole branch).
 
 ---
 

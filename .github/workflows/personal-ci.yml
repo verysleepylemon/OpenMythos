@@ -179,5 +179,8 @@ jobs:
       - name: Run harder_pl14
         run: python -m scripts.harder_pl14
 
+      - name: Run valley_mechanism
+        run: python -m scripts.valley_mechanism
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

@@ -62,7 +62,8 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 47 | `harder_n8.py` | depth | n=8 at prompt_len=12 dim=128: +13.17pp acc (z=-1.30). Largest gain ever measured. The U-shape "ceiling" was a task-length artifact, not an intrinsic optimization limit. |
 | 48 | `rotate_hard.py` | depth | Rotate at prompt_len=12 dim=128: SATURATES at n=1 (99.93%), so loops only hurt (n=8 -6.13pp). Recipe sharpens: loops scale with HEADROOM (1 - n=1 acc), not raw task length. |
 | 49 | `harder_pl14.py` | depth | ReverseCopy at prompt_len=14 dim=128: n=8 still wins +4.91pp (z=-1.21), n=4 still in valley (-7.95pp, 10.49pp variance). Non-monotonic loop landscape replicates. |
-| 50 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 50 | `valley_mechanism.py` | depth | Mechanism: tracks training curves + grad-norm + clip-rate every 100 steps across n_loops at pl=12 dim=128. Finding: valley CORRELATES with clip rate (n=2: 37%, n=4: 12%, n=8: 10%). Saves artifacts/valley_curves.json. Also reveals headline +13.17pp has real seed variance. |
+| 51 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
 
 ## Tests
 

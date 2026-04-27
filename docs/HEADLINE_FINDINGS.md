@@ -32,6 +32,12 @@ the per-script numbers in [`../RESULTS.md`](../RESULTS.md).
    0.10pp). Recurrent depth is a real architectural property — it
    just needs the right architecture, the right compute budget,
    AND a non-trivial task to express itself.
+
+   `loops_at_hard_task` then refines the per-task optimum:
+   at `prompt_len=8`, n=2 and n=4 are STATISTICALLY TIED at 99.93%
+   acc, but **n=8 REGRESSES** (-1.63pp acc, 16× variance increase).
+   Practical recipe: **n_loops=2** at this scale (cheapest of the
+   tied winners; 1.30× cost vs n=1 vs 1.62× for n=4).
 3. **Stacked depth still beats recurrent depth on raw ce** —
    `recurrent_vs_stacked` shows K=4 stacked beats K=4 recurrent by
    0.09 ce (z=2.69), but pays 1.77× more params.

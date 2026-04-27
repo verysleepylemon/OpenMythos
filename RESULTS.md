@@ -550,3 +550,40 @@ model starts, not by the data order. Practical implication:
   floor on this exact recipe and can't be claimed as a win.
 - Multi-seed reporting must include the init dimension specifically;
   data-only seed sweeps systematically under-estimate the true noise.
+
+### longer_training.py
+
+n_loops in {1, 2, 4} x steps in {200, 1000} x 3 seeds, otherwise standard
+recipe. Tests two questions: (a) is the model under-trained at 200 steps?
+(b) does the n_loops gap open up with more compute?
+
+  steps  n_loops  eval_ce (mean +/- std)    acc% (mean +/- std)
+   200    1     1.6995 +/- 0.0169       56.28 +/-  1.40
+   200    2     1.6588 +/- 0.0176       58.63 +/-  2.17
+   200    4     1.6984 +/- 0.0241       55.62 +/-  1.22
+  1000    1     0.9907 +/- 0.0845       95.25 +/-  4.10
+  1000    2     1.0238 +/- 0.1171       91.62 +/-  7.68
+  1000    4     0.9974 +/- 0.0563       94.30 +/-  3.83
+
+Per-n_loops short -> long delta:
+  n_loops=1: ce 1.70 -> 0.99  delta=+0.71  z=8.23
+  n_loops=2: ce 1.66 -> 1.02  delta=+0.64  z=5.36
+  n_loops=4: ce 1.70 -> 1.00  delta=+0.70  z=11.44
+
+At 1000 steps, n_loops gap vs n=1 baseline:
+  n_loops=2: delta_vs_n1=-0.0331  z=-0.23
+  n_loops=4: delta_vs_n1=-0.0068  z=-0.07
+
+Two findings, one expected, one striking:
+1. Expected: 200 steps was FAR under-trained. 5x more compute drops
+   ce by ~0.7 absolute and lifts acc from ~56% to ~94%. Most prior
+   ablations on this branch were measured at the under-trained regime,
+   which compresses the dynamic range and makes effects look small.
+2. Striking: even at 5x more compute and ~94% acc, the n_loops gap
+   STILL hasn't opened (deltas within 1 sigma of zero). Recurrent
+   depth is not buying anything on this task at this model size,
+   regardless of training budget. This generalizes the seed_robustness
+   finding from "noise at short training" to "noise at full convergence."
+3. Variance explodes at 1000 steps (std 0.05-0.12 vs 0.02). Once the
+   model approaches the loss floor, init seed determines how close any
+   given run gets to it. Reinforces init_seed_variance.

@@ -119,5 +119,8 @@ jobs:
       - name: Run init_seed_variance
         run: python -m scripts.init_seed_variance
 
+      - name: Run longer_training
+        run: python -m scripts.longer_training
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

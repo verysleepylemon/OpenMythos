@@ -17,13 +17,15 @@ the per-script numbers in [`../RESULTS.md`](../RESULTS.md).
    and `loops_at_long_train` (at 94% acc convergence, n=4 vs n=1 gap is
    z=-0.12).
 2. **At the optimal architecture (`prelude=1, coda=2`),
-   recurrence is a CONVERGENCE accelerator, not a final-loss
-   improver.** At STEPS=1000 (loops_at_optimal_arch), more loops
-   improves acc (97.7% → 99.1%) and collapses variance 3×. But at
-   STEPS=2500 (loops_at_optimal_arch_long), all loop counts converge
-   to ce≈0.898 (z<0.16). Practical takeaway: optimal `n_loops` is
-   compute-budget-dependent, not architecture-dependent. Use loops
-   when compute-constrained, skip them at convergence.
+   recurrence has a GOLDILOCKS zone in compute budget.**
+   `convergence_curve` maps the full STEPS × n_loops grid:
+   - **STEPS=500 (under-converged):** loops HURT (ce +0.06, acc -4.7pp)
+   - **STEPS=1000-2000 (Goldilocks):** loops HELP (ce -0.02 to -0.03,
+     acc +1-1.4pp, variance collapses 3-5×, z reaches -0.96)
+   - **STEPS=2500+ (saturated):** all collapse to ce≈0.898
+   So optimal `n_loops` is compute-budget-dependent. Use loops
+   when you're in the band roughly 1.5×-5× of early convergence,
+   and skip them otherwise.
 3. **Stacked depth still beats recurrent depth on raw ce** —
    `recurrent_vs_stacked` shows K=4 stacked beats K=4 recurrent by
    0.09 ce (z=2.69), but pays 1.77× more params.

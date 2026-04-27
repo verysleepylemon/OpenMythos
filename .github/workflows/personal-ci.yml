@@ -140,5 +140,8 @@ jobs:
       - name: Run loops_at_optimal_arch
         run: python -m scripts.loops_at_optimal_arch
 
+      - name: Run loops_at_optimal_arch_long
+        run: python -m scripts.loops_at_optimal_arch_long
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

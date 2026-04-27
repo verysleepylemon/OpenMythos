@@ -781,3 +781,62 @@ Updated framing: 'recurrence buys nothing on the default config'
 becomes 'recurrence stabilizes training on the optimal config' once
 prelude/coda are tuned. Mean improvement is still small (z<1) but
 the variance reduction is a real architectural property worth knowing.
+
+### loops_at_optimal_arch_long.py
+
+Followup to loops_at_optimal_arch (STEPS=1000) which showed
+monotonic ce improvement AND 3x variance reduction with more loops
+at the optimal arch (prelude=1, coda=2). Question: at extreme
+convergence (STEPS=2500), does the trend open further?
+
+  n_loops   eval_ce (mean +/- std)    acc% (mean +/- std)
+     1      0.8996 +/- 0.0067       99.58 +/-  0.34
+     2      0.8983 +/- 0.0048       99.74 +/-  0.24
+     4      0.8989 +/- 0.0063       99.63 +/-  0.30
+
+  n_loops=2 vs 1: delta_ce=-0.0013  z=-0.16
+  n_loops=4 vs 1: delta_ce=-0.0007  z=-0.07
+
+NULL RESULT (and clean): all three loop counts collapse to nearly
+identical ce (0.898-0.900) and variance (std 0.005-0.007). The
+monotonic trend at STEPS=1000 is GONE at STEPS=2500.
+
+Compare evolution from earlier sweeps (default arch first, then
+optimal arch):
+
+  STEPS=200  default arch  (loops_grad_study/seed_robustness):
+    z stays near 0 across all loop counts (recurrence buys nothing)
+
+  STEPS=1000 default arch  (loops_at_long_train):
+    n_loops=4 vs 1: z=-0.12 (still null)
+
+  STEPS=1000 optimal arch  (loops_at_optimal_arch):
+    n_loops=4 vs 1: z=-0.71 + monotonic + variance collapses 3x
+
+  STEPS=2500 optimal arch  (loops_at_optimal_arch_long):
+    n_loops=4 vs 1: z=-0.07, all configs collapse to one floor
+
+INTERPRETATION (this is the clean story now):
+
+  The variance reduction observed at STEPS=1000 is a TRAINING-
+  DYNAMICS effect, not a steady-state architectural property. Extra
+  recurrent iterations act as a soft regularizer / averaging that
+  helps EARLY convergence (n_loops=4 reaches 99.12% acc at 1k steps
+  vs 97.74% for n_loops=1), but given enough optimization budget,
+  all configs reach the SAME floor (ce ~0.898, the ReverseCopy
+  irreducible limit at vocab=8, prompt_len=4).
+
+  Practical implications:
+    1. Recurrent depth is a CONVERGENCE accelerator at the optimal
+       arch, not a final-loss improver
+    2. If you're compute-constrained (1k steps), n_loops=4 is
+       strictly better than n_loops=1 (acc 99.12 vs 97.74)
+    3. If you're compute-rich (2.5k+ steps), loops are wasted FLOPs
+       (n=4 is 1.7x slower per step for zero ce gain at convergence)
+    4. The 'optimal n_loops' is BUDGET-DEPENDENT, not architecture-
+       dependent
+
+This rules out one possible interpretation of loops_at_optimal_arch
+(that the recurrent block was finally helping) and replaces it with
+a more useful one (loops are a convergence aid at the optimal arch
+but not an asymptotic improver).

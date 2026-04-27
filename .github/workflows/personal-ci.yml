@@ -98,5 +98,8 @@ jobs:
       - name: Run model_size_scaling
         run: python -m scripts.model_size_scaling
 
+      - name: Run eval_helper_smoke
+        run: python -m scripts.eval_helper_smoke
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

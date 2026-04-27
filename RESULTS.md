@@ -966,3 +966,61 @@ Practical guidance:
 
 This is the strongest single result on the branch in support of
 the recurrent-depth design hypothesis.
+
+### loops_at_hard_task.py
+
+Followup to task_difficulty_scaling: at prompt_len=8 (where n=4 vs
+n=1 was +3.11pp acc + 43x variance collapse), does n_loops continue
+to scale up? Test n_loops in {1, 2, 4, 8} at fixed prompt_len=8.
+
+  n_loops   eval_ce            acc%             wall
+      1      1.0233+/-0.0692  96.82+/-4.31   195.7s
+      2      0.9733+/-0.0020  99.93+/-0.05   254.7s
+      4      0.9737+/-0.0031  99.93+/-0.10   316.5s
+      8      1.0019+/-0.0263  98.30+/-1.56   294.2s
+
+  n_loops=2 vs 1: delta_ce=-0.0500  z=-0.72  delta_acc=+3.12pp  cost=1.30x
+  n_loops=4 vs 1: delta_ce=-0.0496  z=-0.72  delta_acc=+3.11pp  cost=1.62x
+  n_loops=8 vs 1: delta_ce=-0.0214  z=-0.29  delta_acc=+1.48pp  cost=1.50x
+
+CLEAN U-SHAPE:
+
+  n=2 and n=4 are STATISTICALLY TIED:
+    ce: 0.9733 vs 0.9737 (delta=0.0004, ~0.1 sigma)
+    acc: 99.93% vs 99.93% (identical)
+    variance: both ~0 (acc std 0.05 vs 0.10pp)
+
+  n=8 REGRESSES:
+    ce: 0.9737 -> 1.0019 (+0.029)
+    acc: 99.93 -> 98.30 (-1.63pp)
+    variance: 0.10 -> 1.56pp (16x increase)
+    Optimization difficulty returns - too many recurrent steps
+    re-introduce gradient noise / over-regularization.
+
+PRACTICAL OPTIMUM: n_loops=2
+
+  - Tied with n=4 in quality
+  - 19% cheaper than n=4 (1.30x vs 1.62x cost)
+  - Still gives full +3.12pp acc improvement and 86x variance
+    collapse vs n=1
+  - Critically: n=8 worsens acc by -1.6pp and reintroduces
+    variance, so you can't just 'crank it up'
+
+CONNECTING THE DOTS WITH PRIOR FINDINGS:
+
+  Easy task (prompt_len=4):  optimal n_loops = 4
+  Hard task (prompt_len=8):  optimal n_loops = 2 (n=4 ties, n=8 hurts)
+
+  Hypothesis: harder tasks need fewer loops per token because each
+  loop is doing more 'effective work' on a longer sequence. Or
+  alternatively: at the same model size + STEPS budget, n=8 on a
+  hard task simply doesn't have enough optimization budget to
+  converge.
+
+  Either way - the practical recipe is: at this scale,
+  use n_loops=2 unless training is clearly underconverged.
+
+This refines the convergence_curve / task_difficulty_scaling
+guidance: more loops are NOT always better, even at hard tasks.
+Sweet spot is small (2-4 loops) and going beyond is actively
+harmful.

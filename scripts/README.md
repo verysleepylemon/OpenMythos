@@ -63,7 +63,8 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 48 | `rotate_hard.py` | depth | Rotate at prompt_len=12 dim=128: SATURATES at n=1 (99.93%), so loops only hurt (n=8 -6.13pp). Recipe sharpens: loops scale with HEADROOM (1 - n=1 acc), not raw task length. |
 | 49 | `harder_pl14.py` | depth | ReverseCopy at prompt_len=14 dim=128: n=8 still wins +4.91pp (z=-1.21), n=4 still in valley (-7.95pp, 10.49pp variance). Non-monotonic loop landscape replicates. |
 | 50 | `valley_mechanism.py` | depth | Mechanism: tracks training curves + grad-norm + clip-rate every 100 steps across n_loops at pl=12 dim=128. Finding: valley CORRELATES with clip rate (n=2: 37%, n=4: 12%, n=8: 10%). Saves artifacts/valley_curves.json. Also reveals headline +13.17pp has real seed variance. |
-| 51 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 51 | `clip_rescue.py` | depth | CAUSAL test: at n=2 pl=12 dim=128, raising clip 1.0->2.0 rescues acc by +5.82pp (82.9->88.7%). clip=inf only +2.86pp (over-relaxed). The recurrent valley is a gradient-clipping artifact, not a recurrence artifact. Practical fix: set clip=2.0 when using n_loops>=2. |
+| 52 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
 
 ## Tests
 

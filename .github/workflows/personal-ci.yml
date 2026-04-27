@@ -182,5 +182,8 @@ jobs:
       - name: Run valley_mechanism
         run: python -m scripts.valley_mechanism
 
+      - name: Run clip_rescue
+        run: python -m scripts.clip_rescue
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

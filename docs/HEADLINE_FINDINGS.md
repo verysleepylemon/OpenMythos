@@ -63,12 +63,23 @@ the per-script numbers in [`../RESULTS.md`](../RESULTS.md).
    produces a clean NULL: z = -0.14 to -0.22 across n_loops in
    {1,2,4}. `sort_task_loops_hard` (vocab=32 to add headroom,
    n=1 only 90.85%) shows loops actively HURT Sort
-   (delta_acc=-2.37pp at n=4, z=+0.99). The Goldilocks story
-   from points 1-5 is conditional: ReverseCopy benefits because
-   it requires per-position cross-positional routing; Sort does
-   not, and recurrence is wasted (or harmful) on it. The
-   complete recipe is now: **right arch + right compute + hard
-   enough task + task that benefits from iteration.**
+   (delta_acc=-2.37pp at n=4, z=+0.99).
+
+   `rotate_task_loops` triangulates the picture with a third
+   task (Rotate by k=4): clear benefit at n=2 (+6.36pp acc, 43×
+   variance collapse from ±7.77pp to ±0.18pp), but n=4 collapses
+   (-2.69pp acc). Cross-task at dim=128 prompt_len=8:
+   - ReverseCopy: optimum n=4, +1.87pp acc, z=-3.20 (smooth)
+   - Rotate:      optimum n=2, +6.36pp acc, z=-0.73 (sharp; n=4 hurts)
+   - Sort:        no optimum; n=4 HURTS by 2.37pp at vocab=32
+
+   Pattern: tasks that require explicit cross-positional ROUTING
+   (ReverseCopy, Rotate) benefit from loops. Tasks that don't
+   (Sort) do not, and may be harmed by them. The complete recipe
+   is now: **right arch + right compute + hard enough task +
+   task that benefits from iteration.** And the per-task optimum
+   shifts (Rotate=2, ReverseCopy=4 at the same scale) so loop
+   count must be tuned per task class.
 3. **Stacked depth still beats recurrent depth on raw ce** —
    `recurrent_vs_stacked` shows K=4 stacked beats K=4 recurrent by
    0.09 ce (z=2.69), but pays 1.77× more params.

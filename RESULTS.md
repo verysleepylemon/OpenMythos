@@ -1154,3 +1154,29 @@ Cross-task summary at dim=128 prompt_len=8 STEPS=2000:
 
 Practical implication: do not assume recurrence is a free lunch
 across tasks. Profile per-task before adding loops.
+
+## rotate_task_loops.py (Rotate-by-4 at dim=128 prompt_len=8 vocab=8, STEPS=2000, 3 seeds)
+
+  n_loops  eval_ce            acc%
+     1    1.0600+/-0.1030    93.34+/-7.77
+     2    0.9842+/-0.0111    99.71+/-0.18
+     4    1.1182+/-0.0847    90.66+/-7.44
+
+  n>1 advantage vs n=1:
+    n=2: delta_ce=-0.0759  z=-0.73  delta_acc=+6.36pp  (BENEFIT, 43x variance collapse)
+    n=4: delta_ce=+0.0582  z=+0.44  delta_acc=-2.69pp  (HARM, full revariance)
+
+Cross-task summary at dim=128 prompt_len=8 STEPS=2000:
+  ReverseCopy   n=4: +1.87pp acc  z=-3.20  (optimum)  smooth U
+  Rotate-4      n=2: +6.36pp acc  z=-0.73  (optimum)  sharp U, n=4 collapses
+  Sort  vocab=8 n=4: -0.05pp acc  z=-0.22                  null
+  Sort vocab=32 n=4: -2.37pp acc  z=+0.99                  harm
+
+Pattern: routing tasks (ReverseCopy, Rotate) benefit from loops.
+Order-statistic tasks (Sort) do not. Per-task optimum differs
+(Rotate=2, ReverseCopy=4), so tuning per task class is required.
+
+The variance-collapse signature (n=1 std 7.77pp -> n=2 std 0.18pp
+on Rotate; n=1 std 4.31pp -> n=4 std 0.09pp on ReverseCopy at
+dim=64) appears to be a hallmark of when recurrence is doing
+actual work.

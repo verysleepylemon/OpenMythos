@@ -431,3 +431,29 @@ Two clean findings:
 So at fixed STEPS/BATCH/n_loops the toy task **saturates around dim=64**.
 The model_size_scaling experiment confirms what batch_size_curve already
 suggested: this task is data-bound, not capacity-bound.
+
+### parity_loop_sweep.py — does cumulative XOR reward depth?
+
+Standard textbook hard task for transformers (Hahn 2020): predict
+`cumsum(bits) mod 2` at every position from a 16-bit input.
+
+| n_loops | eval_ce (mean +/- std) | parity_acc% |
+|---|---|---|
+| 1 | 0.6933 +/- 0.0002 | 50.01% |
+| 2 | 0.6933 +/- 0.0002 | 50.01% |
+| 4 | 0.6932 +/- 0.0000 | 50.01% |
+| 8 | 0.6931 +/- 0.0000 | 50.01% |
+
+All four configurations are pinned at chance (`ce = ln(2) ≈ 0.693`).
+**Even n_loops=8 doesn't crack it at 300 steps.** This matches the
+well-known result that softmax attention without enough depth/width
+cannot represent the parity function.
+
+Two honest takeaways:
+1. The recurrent block alone, at this tiny size, is not a free pass past
+   classical transformer expressivity limits — depth scaling is necessary
+   but not sufficient.
+2. We now have a synthetic task in the repo that *should* eventually reward
+   either more loops or more compute, and that gives a real signal for any
+   future training-side improvement (a longer training run, better init,
+   or a more expressive recurrent op should start to crack 50%).

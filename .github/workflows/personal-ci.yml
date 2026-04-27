@@ -101,5 +101,8 @@ jobs:
       - name: Run eval_helper_smoke
         run: python -m scripts.eval_helper_smoke
 
+      - name: Run parity_loop_sweep
+        run: python -m scripts.parity_loop_sweep
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

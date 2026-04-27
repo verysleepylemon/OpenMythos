@@ -152,5 +152,8 @@ jobs:
       - name: Run loops_at_hard_task
         run: python -m scripts.loops_at_hard_task
 
+      - name: Run dim_x_loops_at_hard
+        run: python -m scripts.dim_x_loops_at_hard
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

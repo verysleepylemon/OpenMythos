@@ -656,3 +656,23 @@ This is the first ablation on this branch where increasing capacity
 in one direction (coda) helps and increasing it in the symmetric
 direction (prelude) hurts -- the architecture is asymmetric on this
 task, not just under-trained.
+
+### mla_kv_rank_sweep.py
+
+MLA's whole point is compressing K/V via low-rank latent (kv_lora_rank).
+Sweep around default of 16 to confirm it's correctly placed.
+
+  kv_lora_rank  params   eval_ce (mean +/- std)    acc% (mean +/- std)
+       8         94658   1.7298 +/- 0.0309       53.37 +/-  0.97
+      16         97754   1.6799 +/- 0.0174       56.58 +/-  1.45
+      32        103946   1.6734 +/- 0.0222       56.53 +/-  0.70
+
+Vs default (16):
+  rank=8  : delta_ce=+0.0499  z=+1.41  saves 3096 params (underfits)
+  rank=32 : delta_ce=-0.0065  z=-0.23  costs 6192 params (no gain)
+
+Default kv_lora_rank=16 is correctly placed at the elbow:
+  - going SMALLER (8) costs ~0.05 ce for a 3k param save (bad trade)
+  - going LARGER (32) gives no real ce improvement for 6k params (bad trade)
+
+This is the cleanest "default is right" sweep on the branch.

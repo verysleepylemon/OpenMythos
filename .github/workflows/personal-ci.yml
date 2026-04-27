@@ -128,5 +128,8 @@ jobs:
       - name: Run prelude_coda_depth
         run: python -m scripts.prelude_coda_depth
 
+      - name: Run mla_kv_rank_sweep
+        run: python -m scripts.mla_kv_rank_sweep
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

@@ -73,8 +73,17 @@ the per-script numbers in [`../RESULTS.md`](../RESULTS.md).
    measured** (+13.17pp). The optimum slides not just with capacity
    but with task length. n=2 even goes non-monotonic and HURTS,
    suggesting "in-between" loop counts add gradient noise without
-   enough refinement to pay for it. Recipe is now: **scale n_loops
-   with task difficulty, not just with dim.**
+   enough refinement to pay for it.
+
+   `rotate_hard` then sharpens the recipe with a clean negative
+   control. Rotate-by-4 at `prompt_len=12` SATURATES at n=1 (99.93%
+   acc) because only k=4 positions need cross-positional info,
+   vs all positions for ReverseCopy. At zero headroom, loops only
+   hurt: n=2 -0.81pp, n=4 -0.87pp, **n=8 -6.13pp**.
+
+   Final recipe: **loops scale with HEADROOM `(1 - acc at n=1)`,
+   not raw task length.** "Harder task" only helps if it is also
+   unsaturated at this capacity.
 
 6. **Recurrence is TASK-DEPENDENT.** `sort_task_loops` (Sort
    task, same recipe as the ReverseCopy sweep that gave z=-3.20)

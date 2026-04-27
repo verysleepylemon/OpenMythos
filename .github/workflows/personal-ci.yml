@@ -173,5 +173,8 @@ jobs:
       - name: Run harder_n8
         run: python -m scripts.harder_n8
 
+      - name: Run rotate_hard
+        run: python -m scripts.rotate_hard
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

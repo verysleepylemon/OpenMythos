@@ -1242,3 +1242,38 @@ not just model capacity. At an unsaturated task, deeper recurrence
 keeps paying. At a saturated one, the optimum is shallow. n=2 going
 non-monotonic suggests "in-between" loop counts add gradient noise
 without enough refinement to recover.
+## rotate_hard.py - Rotate at prompt_len=12 dim=128 (negative control)
+
+Test if the harder_n8 finding (n=8 wins +13.17pp on ReverseCopy
+at prompt_len=12) generalizes across routing tasks. Rotate is a
+routing task too - so by the simple "task difficulty" reading, it
+should also benefit at prompt_len=12. It does not.
+
+dim=128 vocab=8 STEPS=2000 RotateBy(k=4) prompt_len=12, 3 seeds:
+
+| n_loops | eval_ce          | acc%               | delta vs n=1     |
+|---------|------------------|--------------------|------------------|
+| 1       | 0.9980 +/- 0.004 | 99.93 +/- 0.10     | -                |
+| 2       | 1.0057 +/- 0.008 | 99.12 +/- 0.72     | z=+0.91  -0.81pp |
+| 4       | 1.0220 +/- 0.022 | 99.06 +/- 0.78     | z=+1.10  -0.87pp |
+| 8       | 1.1226 +/- 0.115 | 93.80 +/- 5.34     | z=+1.09  -6.13pp |
+
+Rotate-by-4 SATURATES at n=1 because only k=4 positions need
+cross-positional information (the rest just copy themselves with a
+shift). With zero headroom, deeper loops only add gradient noise
+and hurt - n=8 hurts -6.13pp.
+
+Recipe sharpens: loops scale with HEADROOM (1 - acc at n=1), not
+raw task length. ReverseCopy at prompt_len=12 had 18pp of headroom
+and ate up most of it (+13.17pp); Rotate at prompt_len=12 had 0pp
+of headroom and could only lose ground.
+
+Cross-task at dim=128 prompt_len=12:
+
+| task                       | n=1 acc | best n | delta_acc |
+|----------------------------|---------|--------|-----------|
+| ReverseCopy (full routing) | 82.00%  | 8      | +13.17pp  |
+| Rotate by k=4              | 99.93%  | 1      | -         |
+
+Same task class (routing), same prompt_len, same model, opposite
+result driven entirely by saturation at n=1.

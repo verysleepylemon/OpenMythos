@@ -38,6 +38,20 @@ the per-script numbers in [`../RESULTS.md`](../RESULTS.md).
    acc, but **n=8 REGRESSES** (-1.63pp acc, 16× variance increase).
    Practical recipe: **n_loops=2** at this scale (cheapest of the
    tied winners; 1.30× cost vs n=1 vs 1.62× for n=4).
+
+5. **Capacity changes the optimum: optimal n_loops INCREASES with
+   model dim.** `dim_x_loops_at_hard` (dim in {64, 128} ×
+   n_loops in {1, 2, 4} at prompt_len=8, STEPS=2000) gives the
+   first **statistically significant** recurrence result on this
+   branch:
+   - `dim=64`:  n=2 ≡ n=4 (tied, both 99.93%); z=-0.72 each
+   - `dim=128`: n=4 strictly beats n=2 (z=-3.20 vs -2.67;
+                +1.87pp vs +1.68pp acc)
+
+   This rejects H2 ("loops just compensate for capacity"): bigger
+   models still need them. It supports H1 ("loops add effective
+   depth"). And it tells you the optimum is not fixed — it grows
+   with capacity.
 3. **Stacked depth still beats recurrent depth on raw ce** —
    `recurrent_vs_stacked` shows K=4 stacked beats K=4 recurrent by
    0.09 ce (z=2.69), but pays 1.77× more params.

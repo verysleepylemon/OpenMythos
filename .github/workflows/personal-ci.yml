@@ -110,5 +110,8 @@ jobs:
       - name: Run lr_peak_curve
         run: python -m scripts.lr_peak_curve
 
+      - name: Run topk_experts_sweep
+        run: python -m scripts.topk_experts_sweep
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

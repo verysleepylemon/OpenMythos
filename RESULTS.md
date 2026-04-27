@@ -489,3 +489,19 @@ Verdict: 3e-3 (our standard choice) wins on this task.
 - 1e-2 is unstable (variance 5x higher; worst mean ce 1.96 with acc 31%).
 This is the first ablation on this branch where the chosen knob is
 actually optimal AND the next-bigger knob is materially worse.
+
+### topk_experts_sweep.py
+
+n_experts_per_tok in {1, 2, 3} on canonical reverse-copy (n_experts=4, +1 shared),
+3 seeds x 200 steps.
+
+  k    eval_ce (mean +/- std)    acc% (mean +/- std)
+  1    1.7309 +/- 0.0339       51.19 +/-  3.93
+  2    1.6799 +/- 0.0174       56.58 +/-  1.45
+  3    1.6801 +/- 0.0124       59.20 +/-  1.18
+
+Verdict:
+- k=1 is meaningfully worse on ce (+0.051, ~1.3 sigma) and on acc (-5.4%).
+- k=2 and k=3 are tied on ce; k=3 has slightly better acc but pays 20%
+  more wall time (19.3s vs 16.1s).
+- The k=2 default in the tiny config sits exactly at the elbow.

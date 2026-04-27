@@ -16,12 +16,14 @@ the per-script numbers in [`../RESULTS.md`](../RESULTS.md).
    THREE independent measurements: `seed_robustness`, `longer_training`,
    and `loops_at_long_train` (at 94% acc convergence, n=4 vs n=1 gap is
    z=-0.12).
-2. **BUT — at the optimal architecture (`prelude=1, coda=2`),
-   recurrence is a real variance reducer.** `loops_at_optimal_arch`
-   shows ce monotonically improves with loops (n=1 -> n=2 -> n=4) AND
-   stddev collapses 3× (0.041 -> 0.014). This rescues the recurrent
-   design's premise: it needs the right downstream depth to show its
-   stabilization effect.
+2. **At the optimal architecture (`prelude=1, coda=2`),
+   recurrence is a CONVERGENCE accelerator, not a final-loss
+   improver.** At STEPS=1000 (loops_at_optimal_arch), more loops
+   improves acc (97.7% → 99.1%) and collapses variance 3×. But at
+   STEPS=2500 (loops_at_optimal_arch_long), all loop counts converge
+   to ce≈0.898 (z<0.16). Practical takeaway: optimal `n_loops` is
+   compute-budget-dependent, not architecture-dependent. Use loops
+   when compute-constrained, skip them at convergence.
 3. **Stacked depth still beats recurrent depth on raw ce** —
    `recurrent_vs_stacked` shows K=4 stacked beats K=4 recurrent by
    0.09 ce (z=2.69), but pays 1.77× more params.

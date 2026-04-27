@@ -705,3 +705,38 @@ larger scale.
 This is consistent with topk_experts_sweep, shared_expert_ablation
 and router_balance_loss all telling the same story: routing is not
 the bottleneck on toy.
+
+### loops_at_long_train.py
+
+The definitive loops-at-convergence test. longer_training showed 200
+steps was massively under-training (ce 1.7 -> 1.0 at 1000 steps).
+This script repeats the n_loops in {1,2,4} sweep at STEPS=1000 to
+answer: when the model is actually converged, does recurrence finally
+buy something?
+
+  n_loops   eval_ce (mean +/- std)    acc% (mean +/- std)
+     1      1.0059 +/- 0.0400       94.01 +/-  2.45
+     2      0.9939 +/- 0.0632       94.76 +/-  3.57
+     4      0.9974 +/- 0.0563       94.30 +/-  3.83
+
+Vs n_loops=1:
+  n_loops=2 vs 1: delta_ce=-0.0120  z=-0.16
+  n_loops=4 vs 1: delta_ce=-0.0084  z=-0.12
+
+This is the strongest evidence yet that recurrent depth is NOT
+helping on this toy at this scale. At 94% acc convergence:
+  - n=2 vs n=1: gap is 1/200th of a sigma
+  - n=4 vs n=1: gap is 1/350th of a sigma
+  - all three ce means are within 0.012 of each other
+
+Triangulated with:
+  recurrent_vs_stacked: K=4 stacked WINS by 0.09 ce (z=2.69) for
+                        1.77x params; recurrence buys NOTHING.
+  longer_training:      gap stayed closed across 5x training budget.
+  seed_robustness:      original single-seed wins were init noise.
+
+Three independent convergent measurements: at this scale on this
+toy task, recurrent depth pays compute for no quality gain. The
+architecture's design premise of compute-vs-depth-from-recurrence
+does not hold here. (See HEADLINE_FINDINGS.md for the broader
+interpretation.)

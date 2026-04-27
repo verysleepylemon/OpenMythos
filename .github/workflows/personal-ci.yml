@@ -134,5 +134,8 @@ jobs:
       - name: Run expert_count_sweep
         run: python -m scripts.expert_count_sweep
 
+      - name: Run loops_at_long_train
+        run: python -m scripts.loops_at_long_train
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

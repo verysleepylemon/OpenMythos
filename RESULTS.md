@@ -1062,3 +1062,37 @@ Practical recipe at this scale:
   - mid model   (dim=128): n_loops=4 (statistically significant gain over n=2)
 
 Wall: dim=64 ~12.8min total; dim=128 ~15.6min total. dim=128/n=4 alone is 7.4min.
+
+## u_shape_x_dim.py (n=8 sweep at dim in {64, 128} at prompt_len=8, STEPS=2000, 3 seeds)
+
+  dim   n     params      eval_ce            acc%
+   64   1    123.0k    1.0233+/-0.0692    96.82+/-4.31
+   64   8    123.0k    1.0019+/-0.0263    98.30+/-1.56
+  128   1    405.1k    1.0141+/-0.0122    98.02+/-0.59
+  128   8    405.1k    1.0447+/-0.0902    95.52+/-5.69
+
+  Per-dim n=8 vs n=1:
+    dim=64  n=8 vs n=1: delta_ce=-0.0214  z=-0.29  delta_acc=+1.48pp
+    dim=128 n=8 vs n=1: delta_ce=+0.0307  z=+0.34  delta_acc=-2.51pp
+
+Combined with dim_x_loops_at_hard, full sweep at dim=128 prompt_len=8:
+  n=1: ce=1.0141  acc=98.02  +/-0.59 (baseline)
+  n=2: ce=0.9774  acc=99.71  +/-0.29  z=-2.67
+  n=4: ce=0.9740  acc=99.89  +/-0.09  z=-3.20  <- optimum
+  n=8: ce=1.0447  acc=95.52  +/-5.69  z=+0.34  <- regression, 19x more variance than n=4
+
+The U-shape PERSISTS at higher capacity. Critically, the n=8
+regression is SHARPER at dim=128 than at dim=64:
+  - dim=64  n=8: acc=98.30 (+1.48pp vs n=1), std=1.56pp
+  - dim=128 n=8: acc=95.52 (-2.51pp vs n=1), std=5.69pp
+
+Interpretation:
+  H1 partial: more capacity DOES shift the optimum (2 -> 4) but
+  does NOT unlock arbitrarily deep loops. There is a hard ceiling
+  beyond which extra unrolls actively destabilize training,
+  *especially* with more parameters per loop.
+
+Practical recipe at this scale:
+  - dim=64,  prompt_len=8: n_loops=2 (cheapest tied winner)
+  - dim=128, prompt_len=8: n_loops=4 (statistically best, z=-3.20)
+  - n_loops=8 is unsafe at this scale at either width.

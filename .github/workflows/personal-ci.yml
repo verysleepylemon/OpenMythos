@@ -155,5 +155,8 @@ jobs:
       - name: Run dim_x_loops_at_hard
         run: python -m scripts.dim_x_loops_at_hard
 
+      - name: Run u_shape_x_dim
+        run: python -m scripts.u_shape_x_dim
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

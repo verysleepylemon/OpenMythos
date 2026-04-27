@@ -176,5 +176,8 @@ jobs:
       - name: Run rotate_hard
         run: python -m scripts.rotate_hard
 
+      - name: Run harder_pl14
+        run: python -m scripts.harder_pl14
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

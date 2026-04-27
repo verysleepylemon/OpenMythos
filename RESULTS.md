@@ -1277,3 +1277,33 @@ Cross-task at dim=128 prompt_len=12:
 
 Same task class (routing), same prompt_len, same model, opposite
 result driven entirely by saturation at n=1.
+## harder_pl14.py - ReverseCopy at prompt_len=14 dim=128
+
+Replicate the harder_n8 finding (n=8 wins at prompt_len=12) at
+even harder length. Confirms the non-monotonic landscape.
+
+dim=128 vocab=8 STEPS=2000 prompt_len=14, 3 seeds:
+
+| n_loops | eval_ce          | acc%               | delta vs n=1     |
+|---------|------------------|--------------------|------------------|
+| 1       | 1.1272 +/- 0.038 | 92.15 +/- 3.24     | -                |
+| 4       | 1.2035 +/- 0.134 | 84.21 +/- 10.49    | z=+0.55  -7.95pp |
+| 8       | 1.0550 +/- 0.046 | 97.07 +/- 2.51     | z=-1.21  +4.91pp |
+
+n=8 keeps winning. n=4 keeps showing the "valley of death"
+pattern (intermediate loop counts hurt with high variance) that
+n=2 showed at prompt_len=12. Pattern: at sufficiently hard task,
+non-monotonic - skip past the valley to deep recurrence.
+
+Cross-prompt-length at dim=128 ReverseCopy (preserved):
+
+| pl | n=1 acc | best n | best delta_acc | valley n | valley delta |
+|----|---------|--------|----------------|----------|--------------|
+| 8  | 99.71%  | 4      | +1.87pp        | -        | -            |
+| 12 | 82.00%  | 8      | +13.17pp       | 2        | -7.18pp      |
+| 14 | 92.15%  | 8      | +4.91pp        | 4        | -7.95pp      |
+
+The valley moves with task length: at pl=12 it's n=2, at pl=14
+it's n=4. The winner stays at n=8 for both. The model size at
+dim=128 has a stable "sweet spot" around n=8 once the task is
+hard enough to need deep recurrence.

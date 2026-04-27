@@ -122,5 +122,8 @@ jobs:
       - name: Run longer_training
         run: python -m scripts.longer_training
 
+      - name: Run recurrent_vs_stacked
+        run: python -m scripts.recurrent_vs_stacked
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

@@ -587,3 +587,40 @@ Two findings, one expected, one striking:
 3. Variance explodes at 1000 steps (std 0.05-0.12 vs 0.02). Once the
    model approaches the loss floor, init seed determines how close any
    given run gets to it. Reinforces init_seed_variance.
+
+### recurrent_vs_stacked.py
+
+The marquee experiment for this architecture: does looping a single shared
+block K times substitute for K stacked layers?
+
+  RECURRENT: prelude=1, coda=1, n_loops=K   (one shared block, called K times)
+  STACKED:   prelude=1, coda=K, n_loops=1   (K independent coda blocks)
+
+Same vocab=8, prompt_len=4, 200 steps, 3 seeds each.
+
+  mode       K  params   eval_ce (mean +/- std)    acc% (mean +/- std)
+  recurrent  1   97750   1.6886 +/- 0.0220       54.90 +/-  1.73
+  recurrent  2   97754   1.6799 +/- 0.0174       56.58 +/-  1.45
+  recurrent  4   97762   1.6984 +/- 0.0241       55.62 +/-  1.22
+  stacked    1   97750   1.6886 +/- 0.0220       54.90 +/-  1.73
+  stacked    2  122950   1.6793 +/- 0.0396       61.78 +/-  3.72
+  stacked    4  173350   1.6061 +/- 0.0244       63.43 +/-  1.84
+
+Head-to-head:
+  K=1: identical (sanity check passes - same architecture)
+  K=2: ce tied (1.6799 vs 1.6793), stacked has 1.26x params for nothing
+  K=4: stacked WINS +0.09 ce (z=+2.69) but pays 1.77x more params
+
+This is the headline result for the architecture: at this size and task,
+the recurrent block does NOT extract additional capacity from extra loops.
+At K=4, parameter sharing IS hurting -- the model would rather have those
+extra params as fresh stacked layers than as more iterations of the same
+weights. This is consistent with seed_robustness, longer_training, and
+parity_loop_sweep all telling the same story:
+
+  Recurrent depth on this tiny / toy regime is paying compute for no quality gain.
+
+When recurrence might still be worth it (untested here):
+- Much larger models where param savings matter
+- Tasks with explicit hierarchical / iterative structure
+- Inference-time compute control (early-exit gating)

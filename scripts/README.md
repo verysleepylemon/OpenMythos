@@ -43,7 +43,8 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 28 | `shared_expert_ablation.py` | MoE | n_shared in {0,1,2}; default n_shared=1 wins; 0 and 2 both noisier. |
 | 29 | `init_seed_variance.py` | noise | Fix data, vary init only — init explains ALL of the seed-noise budget. |
 | 30 | `longer_training.py` | training | 200→1000 steps drops ce 0.7 (z=8-11); n_loops gap still doesn't open. |
-| 31 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 31 | `recurrent_vs_stacked.py` | depth | At K=4, stacked WINS +0.09 ce (z=2.69) for 1.77x params; recurrence buys nothing. |
+| 32 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
 
 ## Tests
 

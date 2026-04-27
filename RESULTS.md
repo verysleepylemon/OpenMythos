@@ -1126,3 +1126,31 @@ Either way the implication for the wider story stands: 'recurrent
 depth helps' is conditional on (right arch + right compute + hard
 enough task + task that benefits from iteration). The Goldilocks
 zone has FOUR knobs, not one.
+
+## sort_task_loops_hard.py (Sort vocab=32 prompt_len=8 dim=128, STEPS=2000, 3 seeds)
+
+  n_loops  eval_ce            acc%
+     1    1.7610+/-0.0076    90.85+/-0.39
+     2    1.7998+/-0.0716    89.36+/-3.54
+     4    1.8009+/-0.0398    88.48+/-2.03
+
+  n>1 advantage vs n=1:
+    n=2: delta_ce=+0.0388  z=+0.54  delta_acc=-1.50pp
+    n=4: delta_ce=+0.0400  z=+0.99  delta_acc=-2.37pp
+
+  chance_ce = ln(32) = 3.4657 (n=1 well below)
+
+Even with clear headroom (n=1 stuck at 90.85%, far from 100%),
+loops do NOT help Sort. n=4 actually HURTS by 2.37pp.
+
+This rejects the headroom-saturation explanation for the original
+sort_task_loops null. Sort is genuinely a task class where the
+recurrent depth amplifier does not pay off.
+
+Cross-task summary at dim=128 prompt_len=8 STEPS=2000:
+  ReverseCopy   n=4: delta_ce=-0.040  z=-3.20  delta_acc=+1.87pp  (BENEFIT)
+  Sort vocab=8  n=4: delta_ce=-0.002  z=-0.22  delta_acc=-0.05pp  (NULL)
+  Sort vocab=32 n=4: delta_ce=+0.040  z=+0.99  delta_acc=-2.37pp  (HARM)
+
+Practical implication: do not assume recurrence is a free lunch
+across tasks. Profile per-task before adding loops.

@@ -56,7 +56,8 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 41 | `dim_x_loops_at_hard.py` | depth | FIRST z>3 recurrence result: at dim=128 + prompt_len=8, n=4 vs n=1 z=-3.20 (statistically significant). Bigger model -> recurrence MORE valuable, supports H1 (depth-amplifier). |
 | 42 | `u_shape_x_dim.py` | depth | n=8 sweep at dim in {64,128}. Confirms U-shape at BOTH scales: n=8 regresses harder at dim=128 (acc -2.51pp, std 5.69pp) than at dim=64 (acc +1.48pp, std 1.56pp). More capacity does NOT unlock more loops. |
 | 43 | `sort_task_loops.py` | depth | NULL: Sort task at dim=128 prompt_len=8 sees no recurrence benefit (z=-0.14 to -0.22, delta_acc ~ 0pp). Recurrence is TASK-DEPENDENT - ReverseCopy benefits, Sort does not. |
-| 44 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 44 | `sort_task_loops_hard.py` | depth | Control: Sort with vocab=32 (headroom: n=1 only 90.85%). Loops actively HURT (delta_acc -2.37pp at n=4, z=+0.99). NULL was task-class, not headroom. |
+| 45 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
 
 ## Tests
 

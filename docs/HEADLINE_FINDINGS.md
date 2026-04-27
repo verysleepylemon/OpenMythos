@@ -52,6 +52,23 @@ the per-script numbers in [`../RESULTS.md`](../RESULTS.md).
    models still need them. It supports H1 ("loops add effective
    depth"). And it tells you the optimum is not fixed — it grows
    with capacity.
+
+   `u_shape_x_dim` then nails the upper bound: at BOTH dim=64
+   and dim=128, `n=8` regresses (and regresses HARDER at dim=128,
+   acc -2.51pp with std=5.69pp). More capacity does NOT unlock
+   arbitrarily deep loops — there is a sharp ceiling.
+
+6. **Recurrence is TASK-DEPENDENT.** `sort_task_loops` (Sort
+   task, same recipe as the ReverseCopy sweep that gave z=-3.20)
+   produces a clean NULL: z = -0.14 to -0.22 across n_loops in
+   {1,2,4}. `sort_task_loops_hard` (vocab=32 to add headroom,
+   n=1 only 90.85%) shows loops actively HURT Sort
+   (delta_acc=-2.37pp at n=4, z=+0.99). The Goldilocks story
+   from points 1-5 is conditional: ReverseCopy benefits because
+   it requires per-position cross-positional routing; Sort does
+   not, and recurrence is wasted (or harmful) on it. The
+   complete recipe is now: **right arch + right compute + hard
+   enough task + task that benefits from iteration.**
 3. **Stacked depth still beats recurrent depth on raw ce** —
    `recurrent_vs_stacked` shows K=4 stacked beats K=4 recurrent by
    0.09 ce (z=2.69), but pays 1.77× more params.

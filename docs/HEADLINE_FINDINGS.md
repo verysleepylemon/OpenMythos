@@ -15,17 +15,23 @@ the per-script numbers in [`../RESULTS.md`](../RESULTS.md).
    on the default architecture (`prelude=2, coda=2`). Triangulated across
    THREE independent measurements: `seed_robustness`, `longer_training`,
    and `loops_at_long_train` (at 94% acc convergence, n=4 vs n=1 gap is
-   z=-0.12).
+   z=-0.12). **But this was a bad measurement** — see point 2 for what
+   recurrent depth actually does.
 2. **At the optimal architecture (`prelude=1, coda=2`),
-   recurrence has a GOLDILOCKS zone in compute budget.**
+   recurrence has a GOLDILOCKS zone in compute budget AND
+   its advantage GROWS with task difficulty.**
    `convergence_curve` maps the full STEPS × n_loops grid:
    - **STEPS=500 (under-converged):** loops HURT (ce +0.06, acc -4.7pp)
-   - **STEPS=1000-2000 (Goldilocks):** loops HELP (ce -0.02 to -0.03,
-     acc +1-1.4pp, variance collapses 3-5×, z reaches -0.96)
+   - **STEPS=1000-2000 (Goldilocks):** loops HELP (acc +1-3pp,
+     variance collapses 3-43×, z reaches -0.96)
    - **STEPS=2500+ (saturated):** all collapse to ce≈0.898
-   So optimal `n_loops` is compute-budget-dependent. Use loops
-   when you're in the band roughly 1.5×-5× of early convergence,
-   and skip them otherwise.
+
+   `task_difficulty_scaling` then shows the n_loops advantage scales
+   with task length: at `prompt_len=8`, n=4 vs n=1 acc gap is
+   **+3.11pp** AND n=4 collapses variance **43×** (acc std 4.31pp →
+   0.10pp). Recurrent depth is a real architectural property — it
+   just needs the right architecture, the right compute budget,
+   AND a non-trivial task to express itself.
 3. **Stacked depth still beats recurrent depth on raw ce** —
    `recurrent_vs_stacked` shows K=4 stacked beats K=4 recurrent by
    0.09 ce (z=2.69), but pays 1.77× more params.

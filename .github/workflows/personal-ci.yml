@@ -131,5 +131,8 @@ jobs:
       - name: Run mla_kv_rank_sweep
         run: python -m scripts.mla_kv_rank_sweep
 
+      - name: Run expert_count_sweep
+        run: python -m scripts.expert_count_sweep
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

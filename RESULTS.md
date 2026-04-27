@@ -676,3 +676,32 @@ Default kv_lora_rank=16 is correctly placed at the elbow:
   - going LARGER (32) gives no real ce improvement for 6k params (bad trade)
 
 This is the cleanest "default is right" sweep on the branch.
+
+### expert_count_sweep.py
+
+Sweep n_experts in {2, 4, 8} with top-k held at min(2, n_experts).
+3 seeds x 200 steps.
+
+  n_experts  params   eval_ce (mean +/- std)    acc% (mean +/- std)
+      2       85338   1.6653 +/- 0.0094       56.64 +/-  1.89
+      4       97754   1.6799 +/- 0.0174       56.58 +/-  1.45
+      8      122586   1.6569 +/- 0.0290       56.04 +/-  5.31
+
+Vs default (n=4):
+  n=2 vs 4: delta_ce=-0.0146  z=-0.74  saves 12416 params
+  n=8 vs 4: delta_ce=-0.0230  z=-0.68  costs 24832 params
+
+All three configs sit within init-noise floor (delta < 0.026). Notably:
+  - n=2 (which routes to ALL experts always since k=2) ties default at
+    ~13% fewer params and the LOWEST variance (std 0.009).
+  - n=8 has the worst variance (acc std 5.3%) - more experts =
+    more routing chaos at this scale.
+
+Practical reading: at this model size on this task there is no real
+need for a sparse routed pool. n=2 (effectively dense top-2) is the
+cheapest-not-worse pick. The MoE infrastructure pays its way only at
+larger scale.
+
+This is consistent with topk_experts_sweep, shared_expert_ablation
+and router_balance_loss all telling the same story: routing is not
+the bottleneck on toy.

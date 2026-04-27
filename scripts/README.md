@@ -46,7 +46,8 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 31 | `recurrent_vs_stacked.py` | depth | At K=4, stacked WINS +0.09 ce (z=2.69) for 1.77x params; recurrence buys nothing. |
 | 32 | `prelude_coda_depth.py` | depth | prelude=1, coda=2 is optimal (ce 1.63 z=2.2 vs 1/1); MORE prelude actively hurts. |
 | 33 | `mla_kv_rank_sweep.py` | mla | Default kv_lora_rank=16 sits at elbow; 8 underfits +0.05ce; 32 wastes 6k params. |
-| 34 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 34 | `expert_count_sweep.py` | moe | n_experts in {2,4,8} all within init-noise floor; n=2 cheapest-not-worse (saves 12k params). |
+| 35 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
 
 ## Tests
 

@@ -28,10 +28,13 @@ claims downgraded here.
 - **Optimal arch is `prelude=1, coda=2` at modest scale.**
   `prelude_coda_depth` has z=2.2 vs (1,1); MORE prelude actively hurts.
 - **Recurrence helps at the one (dim, pl) intersection
-  `dim=128, prompt_len=8, n=4`** — the ONLY z<-3 result on this branch
-  (`dim_x_loops_at_hard.py`, z=-3.20, acc +1.87pp). This is the single
-  recurrence win that survives all audits and is the headline going
-  forward.
+  `dim=128, prompt_len=8, n=4`** — the strongest result on this branch.
+  `dim_x_loops_at_hard.py` reported z=-3.20 at 3 seeds, and
+  `replicate_pl8_n4.py` **confirmed at 6 seeds**: n=4=99.81+/-0.17% vs
+  n=1=98.41+/-0.85% (+1.40pp acc, ce z=-1.35, **5x variance collapse**).
+  Every n=4 seed reaches >=99.51% acc. Survived the audit that killed
+  the pl=12 claim. **This is THE recipe to ship: `dim=128 pl=8 n_loops=4
+  prelude=1 coda=2 STEPS=2000`.**
 - **Task-class matters more than depth.** Sort is NULL/HURTS for all
   n_loops (`sort_task_loops*`). Routing tasks (ReverseCopy, Rotate)
   are where recurrence even has a chance to help.

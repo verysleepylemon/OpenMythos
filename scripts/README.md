@@ -67,7 +67,8 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 52 | `clip_universal.py` | depth | Universality check: clip=2.0 vs 1.0 across n in {1,2,4,8} pl=12 dim=128. NUANCE: clip=2.0 HURTS n=1 (-3.24pp), n=2 (-2.52pp), n=4 (-7.10pp), but RESCUES n=8 (+10.12pp). Refined recipe: clip=1.0 for shallow loops, clip=2.0 for deep loops (n>=8). The deep-loop valley is the real clipping artifact. |
 | 53 | `clip_recipe_pl.py` | depth | KILL-TEST: does the n=8 clip=2.0 rescue generalize across pl? At n_loops=8 dim=128, sweep pl in {8,12,14} x clip in {1.0, 2.0}. NEGATIVE: rescue is pl=12 only. pl=8 -2.36pp, pl=12 +10.12pp, pl=14 -29.65pp (acc std 34.60pp - catastrophic divergence). Honest engineering recommendation reverts to clip=1.0 default; depth-aware recipe does NOT ship. |
 | 54 | `headline_replicate.py` | depth | **KILLS the +13.17pp n=8 headline.** 6-seed audit at pl=12 dim=128 STEPS=2000: n=1=91.74+/-6.30%, n=4=89.53+/-12.48% (-2.21pp z=+0.20), n=8=85.88+/-12.22% (-5.86pp z=+0.45). Both deeper settings HURT. Original 3-seed +13.17pp was a seed cluster artifact. Recipe at pl=12 reverts to n=1. |
-| 55 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 55 | `replicate_pl8_n4.py` | depth | **CONFIRMS the rock-solid win.** 6-seed audit at dim=128 pl=8 STEPS=2000: n=1=98.41+/-0.85%, n=4=**99.81+/-0.17%** (+1.40pp acc, z=-1.35 ce, **5x variance collapse**). All 6 n=4 seeds reach >=99.51% acc. The dim_x_loops_at_hard z=-3.20 effect survives at proper sample size. This is the SINGLE rock-solid recurrence win on the personal branch. |
+| 56 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
 
 ## Tests
 

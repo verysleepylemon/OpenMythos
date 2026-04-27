@@ -194,5 +194,8 @@ jobs:
       - name: Run headline_replicate
         run: python -m scripts.headline_replicate
 
+      - name: Run replicate_pl8_n4
+        run: python -m scripts.replicate_pl8_n4
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

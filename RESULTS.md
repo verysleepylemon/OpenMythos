@@ -524,3 +524,29 @@ Verdict:
   routed experts and the optimizer has trouble allocating.
 - Combined with topk_experts_sweep, this confirms the tiny config's
   MoE shape (n=4 routed, k=2, 1 shared) is well-tuned for the task.
+
+### init_seed_variance.py
+
+Fix data shuffling (DATA_SEED=42 across all runs), vary ONLY torch's
+manual_seed before model construction. 5 init seeds, 200 steps each.
+
+  init_seed   ce       acc%
+       0    1.6813   58.06
+       1    1.7445   51.90
+       2    1.7292   51.03
+       3    1.6965   54.00
+       4    1.7466   51.42
+
+Aggregate: ce = 1.7196 +/- 0.0263, acc = 53.28 +/- 2.60%.
+
+Reference baseline (everything varied, from seed_robustness.py):
+std(ce) ~ 0.018.
+
+Verdict: init-only std (0.026) is actually LARGER than the
+all-varied std (0.018). This is the variance ceiling: the noise
+budget on this task is dominated by where in parameter space the
+model starts, not by the data order. Practical implication:
+- Any future ablation with delta < 0.026 ce is below the init-noise
+  floor on this exact recipe and can't be claimed as a win.
+- Multi-seed reporting must include the init dimension specifically;
+  data-only seed sweeps systematically under-estimate the true noise.

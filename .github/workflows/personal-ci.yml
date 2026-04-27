@@ -116,5 +116,8 @@ jobs:
       - name: Run shared_expert_ablation
         run: python -m scripts.shared_expert_ablation
 
+      - name: Run init_seed_variance
+        run: python -m scripts.init_seed_variance
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

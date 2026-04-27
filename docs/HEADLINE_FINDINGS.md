@@ -53,10 +53,28 @@ the per-script numbers in [`../RESULTS.md`](../RESULTS.md).
    depth"). And it tells you the optimum is not fixed — it grows
    with capacity.
 
-   `u_shape_x_dim` then nails the upper bound: at BOTH dim=64
-   and dim=128, `n=8` regresses (and regresses HARDER at dim=128,
-   acc -2.51pp with std=5.69pp). More capacity does NOT unlock
-   arbitrarily deep loops — there is a sharp ceiling.
+   `u_shape_x_dim` then nails the upper bound *at this task length*:
+   at BOTH dim=64 and dim=128 with `prompt_len=8`, `n=8` regresses
+   (HARDER at dim=128, acc -2.51pp ± 5.69pp).
+
+   **But this "ceiling" is an artifact of task length, not an
+   intrinsic optimization limit.** `harder_task_loops` and
+   `harder_n8` push the same dim=128 recipe to `prompt_len=12`
+   (n=1 acc drops to 82.00%, leaving real headroom) and find:
+
+   | n_loops | acc%  | delta vs n=1 | z      |
+   |---------|-------|--------------|--------|
+   | 1       | 82.00 | -            | -      |
+   | 2       | 74.82 | **-7.18pp**  | +0.81  |
+   | 4       | 87.58 | +5.57pp      | -0.60  |
+   | 8       | 95.18 | **+13.17pp** | -1.30  |
+
+   At `prompt_len=12`, `n=8` is the **biggest acc gain we have ever
+   measured** (+13.17pp). The optimum slides not just with capacity
+   but with task length. n=2 even goes non-monotonic and HURTS,
+   suggesting "in-between" loop counts add gradient noise without
+   enough refinement to pay for it. Recipe is now: **scale n_loops
+   with task difficulty, not just with dim.**
 
 6. **Recurrence is TASK-DEPENDENT.** `sort_task_loops` (Sort
    task, same recipe as the ReverseCopy sweep that gave z=-3.20)

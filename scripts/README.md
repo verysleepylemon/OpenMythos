@@ -59,7 +59,8 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 44 | `sort_task_loops_hard.py` | depth | Control: Sort with vocab=32 (headroom: n=1 only 90.85%). Loops actively HURT (delta_acc -2.37pp at n=4, z=+0.99). NULL was task-class, not headroom. |
 | 45 | `rotate_task_loops.py` | depth | Triangulation: Rotate (cross-positional like ReverseCopy). n=2 wins big (+6.36pp acc, 43x variance collapse), n=4 collapses (-2.69pp). Confirms routing tasks benefit from loops; per-task optimum differs (ReverseCopy=4, Rotate=2). |
 | 46 | `harder_task_loops.py` | depth | ReverseCopy at prompt_len=12 dim=128: non-monotonic across n_loops. n=2 HURTS (-7.18pp acc), n=4 HELPS (+5.57pp, 2.4x variance reduction). Optimum jumps with task length. |
-| 47 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 47 | `harder_n8.py` | depth | n=8 at prompt_len=12 dim=128: +13.17pp acc (z=-1.30). Largest gain ever measured. The U-shape "ceiling" was a task-length artifact, not an intrinsic optimization limit. |
+| 48 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
 
 ## Tests
 

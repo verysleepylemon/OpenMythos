@@ -1208,3 +1208,37 @@ Headroom hypothesis: at the easy end (acc near 100%) loops cannot push
 further; at the hard end (acc=82%) loops have room and the gap widens,
 but the OPTIMUM also slides deeper - n=2 isn't enough refinement and
 adds gradient noise without payoff.
+## harder_n8.py — n=8 at prompt_len=12 dim=128
+
+Follow-up to harder_task_loops. The U-shape ceiling claim from
+u_shape_x_dim (n=8 regresses at both dim=64 and dim=128) was based on
+prompt_len=8 only - where acc is already ~99% at n=1. Push to
+prompt_len=12 where n=1 has real room to grow.
+
+dim=128 vocab=8 STEPS=2000 prelude=1 coda=2, 3 seeds:
+
+| n_loops | eval_ce          | acc%               | delta vs n=1     |
+|---------|------------------|--------------------|------------------|
+| 1       | 1.2207 +/- 0.097 | 82.00 +/- 7.83     | -                |
+| 4       | 1.1584 +/- 0.040 | 87.58 +/- 3.22     | z=-0.60  +5.57pp |
+| 8       | 1.0722 +/- 0.061 | 95.18 +/- 4.29     | z=-1.30 +13.17pp |
+
+n=8 is the biggest acc gain on the branch (+13.17pp), beating
+ReverseCopy n=4 at prompt_len=8 (+1.87pp) and Rotate n=2 (+6.36pp).
+The U-shape "ceiling" at prompt_len=8 was an artifact of acc already
+being saturated at n=1, not an intrinsic optimization limit.
+
+Combined with harder_task_loops, full prompt_len=12 dim=128 sweep:
+
+| n_loops | acc%  | delta_acc | observation                |
+|---------|-------|-----------|----------------------------|
+| 1       | 82.00 | -         | unsaturated baseline       |
+| 2       | 74.82 | -7.18pp   | non-monotonic; HURTS       |
+| 4       | 87.58 | +5.57pp   | partial improvement        |
+| 8       | 95.18 | +13.17pp  | best; closing on ceiling   |
+
+Practical recipe upgrade: n_loops should be tuned to TASK DIFFICULTY,
+not just model capacity. At an unsaturated task, deeper recurrence
+keeps paying. At a saturated one, the optimum is shallow. n=2 going
+non-monotonic suggests "in-between" loop counts add gradient noise
+without enough refinement to recover.

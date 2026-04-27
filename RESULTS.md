@@ -457,3 +457,19 @@ Two honest takeaways:
    either more loops or more compute, and that gives a real signal for any
    future training-side improvement (a longer training run, better init,
    or a more expressive recurrent op should start to crack 50%).
+
+### sort3_loop_sweep.py
+
+Sort 3 numbers from vocab=8 with a SEP sentinel; score the 3 output positions.
+LOOP_GRID=[1,2,4] x 3 seeds x 400 steps.
+
+  n_loops  eval_ce (mean +/- std)    sort_acc% (mean +/- std)
+      1    0.7464 +/- 0.0205       99.69 +/-  0.25
+      2    0.7438 +/- 0.0097       98.84 +/-  0.39
+      4    0.8076 +/- 0.0346       96.74 +/-  1.63
+
+best_n_loops=2, delta_vs_n1=+0.0026, pooled_std=0.0227, z=0.11.
+Verdict: depth gain still within seed noise. Sort-3 is too easy --
+the model hits ~99% sort accuracy at n_loops=1 and extra recurrence
+slightly hurts (more compute, same task, more chance to mis-route).
+A meaningful depth probe would need a longer / less memorizable task.

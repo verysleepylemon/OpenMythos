@@ -35,7 +35,10 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 20 | `grad_clip_ablation.py` | training | clip in {0.5, 1.0, 2.0, no-clip}; clip=0.5 fires 99.8% and hurts. |
 | 21 | `batch_size_curve.py` | training | BATCH 8->64 at fixed STEPS; ce 3.41->2.97 (z=3.71, real win). |
 | 22 | `model_size_scaling.py` | scaling | dim {32, 64, 128}; saturates at dim=64 on the toy task. |
-| 23 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 23 | `eval_helper_smoke.py` | infra | End-to-end smoke for the shared `_eval.py` helper. |
+| 24 | `parity_loop_sweep.py` | depth | Cumulative XOR; all loop counts pinned at chance (Hahn 2020). |
+| 25 | `sort3_loop_sweep.py` | depth | Sort-3 is too easy — n=1 already 99.7% acc; depth doesn't help. |
+| 26 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
 
 ## Tests
 

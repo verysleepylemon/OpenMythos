@@ -104,5 +104,8 @@ jobs:
       - name: Run parity_loop_sweep
         run: python -m scripts.parity_loop_sweep
 
+      - name: Run sort3_loop_sweep
+        run: python -m scripts.sort3_loop_sweep
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

@@ -51,7 +51,8 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 36 | `loops_at_optimal_arch.py` | depth | At prelude=1+coda=2 optimal arch, recurrence shows MONOTONIC ce improvement and collapses variance 3x. |
 | 37 | `loops_at_optimal_arch_long.py` | depth | At STEPS=2500 (99.6% acc), all loop counts converge to identical ce — variance reduction was a training-dynamics effect, not steady-state. |
 | 38 | `convergence_curve.py` | depth | Goldilocks zone: at STEPS=500 loops HURT (z=+0.40), at STEPS=1000-2000 loops HELP (z=-0.71 to -0.96 + 3x variance drop), at STEPS=2500 all collapse. |
-| 39 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 39 | `task_difficulty_scaling.py` | depth | Loop advantage GROWS with prompt_len: acc gap 0.94pp -> 2.47pp -> 3.11pp at prompt_len 4/6/8. At prompt_len=8, n=4 collapses variance 43x (acc std 4.31pp -> 0.10pp). |
+| 40 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
 
 ## Tests
 

@@ -146,5 +146,8 @@ jobs:
       - name: Run convergence_curve
         run: python -m scripts.convergence_curve
 
+      - name: Run task_difficulty_scaling
+        run: python -m scripts.task_difficulty_scaling
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

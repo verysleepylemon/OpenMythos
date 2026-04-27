@@ -167,5 +167,8 @@ jobs:
       - name: Run rotate_task_loops
         run: python -m scripts.rotate_task_loops
 
+      - name: Run harder_task_loops
+        run: python -m scripts.harder_task_loops
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

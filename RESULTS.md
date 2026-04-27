@@ -1180,3 +1180,31 @@ The variance-collapse signature (n=1 std 7.77pp -> n=2 std 0.18pp
 on Rotate; n=1 std 4.31pp -> n=4 std 0.09pp on ReverseCopy at
 dim=64) appears to be a hallmark of when recurrence is doing
 actual work.
+
+## harder_task_loops.py — prompt_len=12 dim=128 ReverseCopy
+
+Push the dim=128 result from prompt_len=8 (z=-3.20 at n=4) to prompt_len=12.
+n=1 acc drops to 82.00% so the task is now unsaturated and there is real
+headroom for loops to cover.
+
+dim=128 vocab=8 STEPS=2000 prelude=1 coda=2 expert_dim=64, 3 seeds:
+
+| n_loops | eval_ce          | acc%               | delta vs n=1     |
+|---------|------------------|--------------------|------------------|
+| 1       | 1.2207 +/- 0.097 | 82.00 +/- 7.83     | -                |
+| 2       | 1.3314 +/- 0.096 | 74.82 +/- 7.19     | z=+0.81  -7.18pp |
+| 4       | 1.1584 +/- 0.040 | 87.58 +/- 3.22     | z=-0.60  +5.57pp |
+
+Non-monotonic landscape: n=2 HURTS (-7.18pp), n=4 HELPS (+5.57pp, 2.4x
+variance reduction). The optimum n_loops jumps with task length:
+
+| dim | prompt_len | best n | delta_acc | z       |
+|-----|------------|--------|-----------|---------|
+| 64  | 8          | 2 ~ 4  | +1.41pp   | -1.32   |
+| 128 | 8          | 4      | +1.87pp   | -3.20   |
+| 128 | 12         | 4 (n=2 worse) | +5.57pp | -0.60 |
+
+Headroom hypothesis: at the easy end (acc near 100%) loops cannot push
+further; at the hard end (acc=82%) loops have room and the gap widens,
+but the OPTIMUM also slides deeper - n=2 isn't enough refinement and
+adds gradient noise without payoff.

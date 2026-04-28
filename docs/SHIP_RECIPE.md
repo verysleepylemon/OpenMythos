@@ -17,7 +17,7 @@ If your task and dimensions match the **green zone** below, set
 | `expert_dim`       | `dim // 2` (= 64)      |
 | `max_loop_iters`   | **4** (only in green zone, else **1**) |
 | `grad_clip`        | **1.0**                |
-| training steps     | ~2000                  |
+| training steps     | **2000** (resonance — see below) |
 
 ## Green zone (where `n_loops=4` ships)
 
@@ -71,6 +71,23 @@ Out-of-zone reference (`pl_sweep_n4.py`):
 identical params, identical inference latency *if* you keep the loop in
 serving (or 1× latency if you drop loops at serve time and accept slight
 quality loss; not measured).
+
+## STEPS=2000 is locked in (resonance, not acceleration)
+
+`accel_curve.py` (6 seeds at dim=128 pl=8, STEPS in {500, 1000, 1500, 2000, 3000})
+shows the win exists ONLY at STEPS=2000:
+
+| STEPS | n=1 acc        | n=4 acc            | d_acc    |
+|-------|----------------|--------------------|----------|
+| 500   | 61.60 ± 16.69  | 62.06 ± 9.62       | +0.46 pp |
+| 1000  | 95.91 ± 3.33   | 88.78 ± 10.16      | **−7.13 pp** |
+| 1500  | 98.65 ± 0.88   | 96.72 ± 4.42       | **−1.93 pp** |
+| 2000  | 98.41 ± 0.85   | **99.81 ± 0.17**   | **+1.40 pp** |
+| 3000  | 99.54 ± 0.60   | 99.51 ± 0.85       | −0.03 pp (tied) |
+
+Train **for 2000 steps**. Less and `n=4` is mid-phase, unstable. More
+and `n=1` catches up. There is **no** training-time speedup to sell
+on this stack — only the STEPS=2000 sweet spot.
 
 ## What does NOT ship (killed by 6-seed audit)
 

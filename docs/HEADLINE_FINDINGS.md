@@ -42,6 +42,13 @@ claims downgraded here.
   improves +2.85pp but variance INCREASES (std 7.15 -> 10.34) and one
   seed collapses to 72% — out of regime. Green zone is **pl in {6, 8}**
   at dim=128.
+- **The win is a STEPS=2000 RESONANCE, not an acceleration.**
+  `accel_curve.py` (6 seeds, STEPS in {500,1000,1500,2000,3000}) shows
+  n=4 vs n=1: -7.13pp at STEPS=1000, -1.93pp at STEPS=1500, **+1.40pp
+  at STEPS=2000**, tied at STEPS=3000. n=4 trains SLOWER, not faster;
+  there is no equivalent-quality step ratio. The win exists in a narrow
+  STEPS window where the recurrent grad path's learning phase has just
+  completed and n=1 hasn't caught up. STEPS=2000 is part of the recipe.
 - **Task-class matters more than depth.** Sort is NULL/HURTS for all
   n_loops (`sort_task_loops*`). Rotate is also NULL at 6 seeds
   (`rotate_replicate.py`: n=2 +0.81pp z=+0.07, n=4 -1.31pp z=+0.22 —

@@ -1594,3 +1594,46 @@ putting it in the "no headroom" regime where loops only add variance.
 
 Updated task-class rule: ship n=4 only on ReverseCopy-style tasks at
 dim=128 pl in {6,8}. For Rotate or unknown task class, ship n=1.
+## accel_curve.py - the dim=128 pl=8 n=4 win is a RESONANCE, not an acceleration
+
+To test whether n=4's +1.40pp at STEPS=2000 is "n=4 trains faster" or
+"n=4 reaches a better asymptote", swept STEPS in {500,1000,1500,2000,3000}
+at dim=128 pl=8 with n in {1,4}, 6 seeds each (60 runs, total wall 5492s).
+
+| STEPS | n=1 acc            | n=4 acc            | d_acc    | n=4 std   | verdict |
+|-------|--------------------|--------------------|----------|-----------|---------|
+| 500   | 61.60 +/- 16.69 %  | 62.06 +/- 9.62 %   | +0.46pp  | 9.62pp    | both terrible (just less terrible n=4) |
+| 1000  | 95.91 +/- 3.33 %   | 88.78 +/- 10.16 %  | -7.13pp  | 10.16pp   | **n=4 LOSES badly** |
+| 1500  | 98.65 +/- 0.88 %   | 96.72 +/- 4.42 %   | -1.93pp  | 4.42pp    | **n=4 still loses** |
+| 2000  | 98.41 +/- 0.85 %   | **99.81 +/- 0.17 %** | **+1.40pp** | **0.17pp** | **resonance** |
+| 3000  | 99.54 +/- 0.60 %   | 99.51 +/- 0.85 %   | -0.03pp  | 0.85pp    | tied (both saturate) |
+
+**This is the most surprising result on the personal branch.**
+
+n=4 does NOT train faster. At STEPS=1000 and 1500, n=4 is HURTING -
+mean acc 7.13pp and 1.93pp WORSE than n=1, with 12x and 5x WORSE
+variance. At STEPS=3000, n=4 ties n=1 (both saturate ~99.5%) but n=4
+has WORSE variance (0.85pp vs 0.60pp).
+
+The +1.40pp ship win exists ONLY at STEPS=2000. It is a narrow
+resonance, not a smooth acceleration curve.
+
+Mechanism (hypothesized): the recurrent grad pathway needs ~2000
+steps to complete a specific learning phase that converges all 6
+seeds to near-perfect routing. At STEPS<2000 n=4 is mid-phase
+(unstable, high variance). At STEPS>2000 n=4 is past-phase
+(small over-fit / variance refresh) and n=1 has caught up.
+
+Practical implication for SHIP_RECIPE: **STEPS=2000 is part of the
+recipe**, not just a convenience. Training longer or shorter at
+n=4 destroys the win. The STEPS=2000 sweet spot must be specified
+alongside dim=128 pl=8 n=4.
+
+Step ratio analysis: equivalent-quality test fails. n=4 does NOT
+hit n=1@2000=98.41% at any earlier STEPS in the grid (n=4 only
+reaches 88.78% at 1000 and 96.72% at 1500). So there is NO training
+acceleration story to sell - only the resonance at STEPS=2000.
+
+**Updated recipe constraint set is now:** dim=128 + pl in {6,8} + n=4 +
+prelude=1 + coda=2 + STEPS=2000 + grad_clip=1.0. Six locked knobs.
+Move any one off and the win evaporates.

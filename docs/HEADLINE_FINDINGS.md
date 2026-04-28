@@ -35,6 +35,13 @@ claims downgraded here.
   Every n=4 seed reaches >=99.51% acc. Survived the audit that killed
   the pl=12 claim. **This is THE recipe to ship: `dim=128 pl=8 n_loops=4
   prelude=1 coda=2 STEPS=2000`.**
+- **The win extends to pl=6, NOT to pl=10.**
+  `pl_sweep_n4.py` (6 seeds across pl in {6,8,10}) shows n=4 helps at
+  pl=6 (+3.73pp acc, std 5.98 -> 2.79, 2.1x variance reduction) and
+  replicates exactly at pl=8 (the same 99.81+/-0.17). At pl=10 the mean
+  improves +2.85pp but variance INCREASES (std 7.15 -> 10.34) and one
+  seed collapses to 72% — out of regime. Green zone is **pl in {6, 8}**
+  at dim=128.
 - **Task-class matters more than depth.** Sort is NULL/HURTS for all
   n_loops (`sort_task_loops*`). Routing tasks (ReverseCopy, Rotate)
   are where recurrence even has a chance to help.

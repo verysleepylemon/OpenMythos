@@ -24,34 +24,41 @@ If your task and dimensions match the **green zone** below, set
 `max_loop_iters = 4` is recommended **iff all** of the following hold:
 
 1. `dim >= 128`
-2. task prompt length is **near** 8 (concretely: pl ∈ [6, 10] — confirmed
-   by `pl_sweep_n4.py` if you have ran it; `pl=8` alone is the only
-   replicated-at-6-seeds point).
+2. task prompt length **pl ∈ {6, 8}** — verified at 6 seeds by
+   `pl_sweep_n4.py`. At pl=10 the mean still improves (+2.85 pp) but
+   *variance increases* (+3.19 pp std, one seed collapsed to 72%) so
+   it is **not** in the green zone. At pl≥12 loops actively hurt
+   (`headline_replicate.py`).
 3. task is a **routing / cross-positional** task (ReverseCopy, Rotate).
    Sort-style tasks did not benefit (`sort_task_loops.py`).
-4. baseline `n=1` accuracy is in `[97%, 99%]` — i.e. there is ~1–3pp
-   headroom for recurrence to close. If `n=1` is already ≥ 99.5% (saturated)
-   loops only add variance.
+4. baseline `n=1` accuracy is in `[94%, 99%]` — i.e. there is real
+   headroom for recurrence to close. If `n=1` is already ≥ 99.5%
+   (saturated) loops only add variance.
 
 If **any** of those fail: ship `max_loop_iters = 1`.
 
 ## What you get in the green zone
 
-From `replicate_pl8_n4.py` (6 seeds, dim=128, pl=8, STEPS=2000):
+From `replicate_pl8_n4.py` and `pl_sweep_n4.py` (6 seeds each, dim=128,
+prelude=1, coda=2, STEPS=2000, grad_clip=1.0):
 
-| n_loops | accuracy           | per-seed range      | ce              |
-|---------|--------------------|---------------------|-----------------|
-| 1       | 98.41 ± 0.85 %     | [97.36, 99.83]      | 1.0035 ± 0.017  |
-| **4**   | **99.81 ± 0.17 %** | **[99.51, 100.00]** | **0.9777 ± 0.008** |
-
-- **+1.40 pp** mean accuracy.
-- **5×** variance collapse on both ce and acc.
-- **Worst** n=4 seed (99.51%) beats **4 of 6** n=1 seeds.
-- z = -1.35 on ce delta (one-sided lower bound on the true effect).
+| pl | n_loops | accuracy           | per-seed range      | notes |
+|----|---------|--------------------|---------------------|-------|
+| 6  | 1       | 94.43 ± 5.98 %     | [85.48, 99.38]      | wide variance |
+| 6  | **4**   | **98.16 ± 2.79 %** | [92.48, 99.61]      | +3.73 pp, 2.1× variance reduction |
+| 8  | 1       | 98.41 ± 0.85 %     | [97.36, 99.83]      |        |
+| 8  | **4**   | **99.81 ± 0.17 %** | **[99.51, 100.00]** | +1.40 pp, **5× variance collapse** |
 
 The variance collapse is the dominant practical win. It means deployment
 quality doesn't depend on getting lucky with the init seed — every seed
-trained with `n_loops=4` lands in a tight band near 100%.
+trained with `n_loops=4` lands in a tight band near the ceiling.
+
+Out-of-zone reference (`pl_sweep_n4.py`):
+
+| pl | n_loops | accuracy            | notes |
+|----|---------|---------------------|-------|
+| 10 | 1       | 86.20 ± 7.15 %      | model out of regime |
+| 10 | 4       | 89.05 ± 10.34 %     | mean up but variance up; one seed collapsed to 72% |
 
 ## Cost
 

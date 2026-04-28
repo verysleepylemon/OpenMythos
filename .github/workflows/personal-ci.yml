@@ -200,5 +200,8 @@ jobs:
       - name: Run pl_sweep_n4
         run: python -m scripts.pl_sweep_n4
 
+      - name: Run rotate_replicate
+        run: python -m scripts.rotate_replicate
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

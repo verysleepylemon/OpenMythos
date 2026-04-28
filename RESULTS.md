@@ -1544,3 +1544,28 @@ Recurrence has a narrow operating regime: capacity must outpace task
 length. At pl=8 the dim=128 model has ~1.6pp headroom for recurrence
 to exploit; at pl=12 dim=128 already struggles (~8pp gap) and adding
 loops just adds variance.
+## pl_sweep_n4.py - region map around the surviving win
+
+After replicate_pl8_n4 confirmed dim=128 pl=8 n=4 at 6 seeds, this maps
+the SHAPE of the winning region by sweeping pl in {6,8,10} x n in {1,4}
+at 6 seeds (36 runs, total wall 4222s).
+
+Region map (delta from n=1 to n=4, 6 seeds each, dim=128 STEPS=2000 prelude=1 coda=2):
+
+| pl  | n=1 acc            | n=4 acc            | d_acc    | d_std    | z_ce   | verdict |
+|-----|--------------------|--------------------|----------|----------|--------|---------|
+| 6   | 94.43 +/- 5.98 %   | 98.16 +/- 2.79 %   | +3.73pp  | -3.19pp  | -0.52  | helps (variance halves) |
+| 8   | 98.41 +/- 0.85 %   | 99.81 +/- 0.17 %   | +1.40pp  | -0.69pp  | -1.35  | helps (5x variance collapse) |
+| 10  | 86.20 +/- 7.15 %   | 89.05 +/- 10.34 %  | +2.85pp  | +3.19pp  | -0.27  | mixed (mean up, variance up) |
+
+Green zone is pl in {6, 8}. At pl=10 the +2.85pp mean shift is swamped
+by the +3.19pp std INCREASE; one n=4 seed at pl=10 collapsed to 72.21%.
+Variance reduction only operates where the model has enough capacity
+relative to the task length; at pl=10 dim=128 is no longer in regime.
+
+Cross-validation: pl=8 numbers from this sweep match replicate_pl8_n4
+to the decimal (98.41 +/- 0.85 -> 98.41 +/- 0.85 / 99.81 +/- 0.17 ->
+99.81 +/- 0.17), confirming both runs are deterministic at the seed level.
+
+Updated ship-recipe green zone: dim=128, pl in {6, 8}, prelude=1 coda=2,
+STEPS=2000 -> set max_loop_iters=4. Outside this zone -> max_loop_iters=1.

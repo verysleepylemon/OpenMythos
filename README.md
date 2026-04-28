@@ -174,6 +174,30 @@ Key design choices:
 |---|---|
 | [`docs/open_mythos.md`](docs/open_mythos.md) | Full API reference for the `OpenMythos` class — constructor, `forward`, `generate`, all sub-modules, configuration reference, and usage examples |
 | [`docs/datasets.md`](docs/datasets.md) | Recommended training datasets with token budget guidance per model size |
+| [`docs/CLUE_QUEST_MONETIZATION.md`](docs/CLUE_QUEST_MONETIZATION.md) | Safe puzzle-decoding feature design + product monetization blueprint |
+
+---
+
+## Clue Quest (Safe Puzzle Decoder)
+
+OpenMythos now includes an experimental, legal puzzle feature in `scripts/clue_quest.py`.
+
+What it does:
+- extracts public clues from HTML (`meta[name="clue"]`, `data-clue`, HTML comments),
+- decodes clue strings with recurrent-style loops (base64, hex, URL decode, rot13),
+- requires explicit consent + host allowlist for website targets.
+
+Quick demo:
+
+```bash
+python -m scripts.clue_quest_demo \
+  --html-file examples/clue_quest_sample.html \
+  --url https://example.com/challenge \
+  --allow-host example.com \
+  --consent
+```
+
+Safety note: this feature is for CTFs, public puzzle pages, and owner-authorized challenges only.
 
 ---
 

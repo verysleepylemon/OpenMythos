@@ -72,6 +72,7 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 57 | `rotate_replicate.py` | depth | 6-seed audit of the original 3-seed Rotate finding (n=2 +6.36pp). Re-runs Rotate at dim=128 pl=8 k=4 STEPS=2000 with n in {1,2,4}. Decides whether Rotate has its own task-specific sweet spot (n=2) or whether the 3-seed claim was a cluster artifact like harder_n8. |
 | 58 | `accel_curve.py` | depth | Acceleration vs asymptote: at dim=128 pl=8, 6 seeds, sweep STEPS in {500,1000,1500,2000,3000} for n in {1,4}. Quantifies how much earlier n=4 reaches n=1@STEPS=2000 quality. Step ratio determines whether the +1.40pp ship win is also a training-cost win. ~5h. |
 | 59 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 60 | `clue_quest_demo.py` | product | Safe puzzle clue decoder demo (public/consented targets only) with built-in creator payout estimate. |
 
 ## Tests
 

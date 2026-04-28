@@ -197,5 +197,8 @@ jobs:
       - name: Run replicate_pl8_n4
         run: python -m scripts.replicate_pl8_n4
 
+      - name: Run pl_sweep_n4
+        run: python -m scripts.pl_sweep_n4
+
       - name: Run profile_trace
         run: python -m scripts.profile_trace

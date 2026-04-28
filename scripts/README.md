@@ -68,7 +68,8 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 53 | `clip_recipe_pl.py` | depth | KILL-TEST: does the n=8 clip=2.0 rescue generalize across pl? At n_loops=8 dim=128, sweep pl in {8,12,14} x clip in {1.0, 2.0}. NEGATIVE: rescue is pl=12 only. pl=8 -2.36pp, pl=12 +10.12pp, pl=14 -29.65pp (acc std 34.60pp - catastrophic divergence). Honest engineering recommendation reverts to clip=1.0 default; depth-aware recipe does NOT ship. |
 | 54 | `headline_replicate.py` | depth | **KILLS the +13.17pp n=8 headline.** 6-seed audit at pl=12 dim=128 STEPS=2000: n=1=91.74+/-6.30%, n=4=89.53+/-12.48% (-2.21pp z=+0.20), n=8=85.88+/-12.22% (-5.86pp z=+0.45). Both deeper settings HURT. Original 3-seed +13.17pp was a seed cluster artifact. Recipe at pl=12 reverts to n=1. |
 | 55 | `replicate_pl8_n4.py` | depth | **CONFIRMS the rock-solid win.** 6-seed audit at dim=128 pl=8 STEPS=2000: n=1=98.41+/-0.85%, n=4=**99.81+/-0.17%** (+1.40pp acc, z=-1.35 ce, **5x variance collapse**). All 6 n=4 seeds reach >=99.51% acc. The dim_x_loops_at_hard z=-3.20 effect survives at proper sample size. This is the SINGLE rock-solid recurrence win on the personal branch. |
-| 56 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 56 | `pl_sweep_n4.py` | depth | Maps the SHAPE of the winning region around dim=128 pl=8 n=4. Sweeps pl in {6,8,10} x n in {1,4} at 6 seeds (36 runs). Tells whether the recipe ships as "n_loops=4 at dim=128 pl=8 only" or "n_loops=4 at dim=128 pl in [6,10]". |
+| 57 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
 
 ## Tests
 

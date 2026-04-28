@@ -1,8 +1,8 @@
 name: personal-ci
 
-# Runs the personal smoke tests + scripts on the personal branch.
-# Lightweight: CPU-only torch, no transformers / datasets / numpy. Should
-# finish in well under a minute.
+# Runs personal smoke/invariant/product checks on push/PR.
+# Long research scripts are available via workflow_dispatch input
+# `run_long_experiments=true` to avoid the 6h GitHub job timeout.
 
 on:
   push:
@@ -45,6 +45,9 @@ jobs:
 
       - name: Run pytest invariant suite
         run: python -m pytest tests/test_invariants.py -v
+
+      - name: Run pytest clue quest suite
+        run: python -m pytest tests/test_clue_quest.py -v
 
       - name: Run quick_demo
         run: python -m scripts.quick_demo
@@ -130,93 +133,43 @@ jobs:
       - name: Run init_seed_variance
         run: python -m scripts.init_seed_variance
 
-      - name: Run longer_training
-        run: python -m scripts.longer_training
-
-      - name: Run recurrent_vs_stacked
-        run: python -m scripts.recurrent_vs_stacked
-
-      - name: Run prelude_coda_depth
-        run: python -m scripts.prelude_coda_depth
-
-      - name: Run mla_kv_rank_sweep
-        run: python -m scripts.mla_kv_rank_sweep
-
-      - name: Run expert_count_sweep
-        run: python -m scripts.expert_count_sweep
-
-      - name: Run loops_at_long_train
-        run: python -m scripts.loops_at_long_train
-
-      - name: Run loops_at_optimal_arch
-        run: python -m scripts.loops_at_optimal_arch
-
-      - name: Run loops_at_optimal_arch_long
-        run: python -m scripts.loops_at_optimal_arch_long
-
-      - name: Run convergence_curve
-        run: python -m scripts.convergence_curve
-
-      - name: Run task_difficulty_scaling
-        run: python -m scripts.task_difficulty_scaling
-
-      - name: Run loops_at_hard_task
-        run: python -m scripts.loops_at_hard_task
-
-      - name: Run dim_x_loops_at_hard
-        run: python -m scripts.dim_x_loops_at_hard
-
-      - name: Run u_shape_x_dim
-        run: python -m scripts.u_shape_x_dim
-
-      - name: Run sort_task_loops
-        run: python -m scripts.sort_task_loops
-
-      - name: Run sort_task_loops_hard
-        run: python -m scripts.sort_task_loops_hard
-
-      - name: Run rotate_task_loops
-        run: python -m scripts.rotate_task_loops
-
-      - name: Run harder_task_loops
-        run: python -m scripts.harder_task_loops
-
-      - name: Run harder_n8
-        run: python -m scripts.harder_n8
-
-      - name: Run rotate_hard
-        run: python -m scripts.rotate_hard
-
-      - name: Run harder_pl14
-        run: python -m scripts.harder_pl14
-
-      - name: Run valley_mechanism
-        run: python -m scripts.valley_mechanism
-
-      - name: Run clip_rescue
-        run: python -m scripts.clip_rescue
-
-      - name: Run clip_universal
-        run: python -m scripts.clip_universal
-
-      - name: Run clip_recipe_pl
-        run: python -m scripts.clip_recipe_pl
-
-      - name: Run headline_replicate
-        run: python -m scripts.headline_replicate
-
-      - name: Run replicate_pl8_n4
-        run: python -m scripts.replicate_pl8_n4
-
-      - name: Run pl_sweep_n4
-        run: python -m scripts.pl_sweep_n4
-
-      - name: Run rotate_replicate
-        run: python -m scripts.rotate_replicate
-
-      - name: Run accel_curve (manual only)
+      - name: Run extended research matrix (manual only)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_long_experiments == 'true' }}
-        run: python -m scripts.accel_curve
+        run: |
+          modules=(
+            scripts.longer_training
+            scripts.recurrent_vs_stacked
+            scripts.prelude_coda_depth
+            scripts.mla_kv_rank_sweep
+            scripts.expert_count_sweep
+            scripts.loops_at_long_train
+            scripts.loops_at_optimal_arch
+            scripts.loops_at_optimal_arch_long
+            scripts.convergence_curve
+            scripts.task_difficulty_scaling
+            scripts.loops_at_hard_task
+            scripts.dim_x_loops_at_hard
+            scripts.u_shape_x_dim
+            scripts.sort_task_loops
+            scripts.sort_task_loops_hard
+            scripts.rotate_task_loops
+            scripts.harder_task_loops
+            scripts.harder_n8
+            scripts.rotate_hard
+            scripts.harder_pl14
+            scripts.valley_mechanism
+            scripts.clip_rescue
+            scripts.clip_universal
+            scripts.clip_recipe_pl
+            scripts.headline_replicate
+            scripts.replicate_pl8_n4
+            scripts.pl_sweep_n4
+            scripts.rotate_replicate
+            scripts.accel_curve
+            scripts.profile_trace
+          )
 
-      - name: Run profile_trace
-        run: python -m scripts.profile_trace
+          for module in "${modules[@]}"; do
+            echo "Running ${module}"
+            python -m "${module}"
+          done

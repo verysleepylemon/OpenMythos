@@ -29,8 +29,13 @@ If your task and dimensions match the **green zone** below, set
    *variance increases* (+3.19 pp std, one seed collapsed to 72%) so
    it is **not** in the green zone. At pl≥12 loops actively hurt
    (`headline_replicate.py`).
-3. task is a **routing / cross-positional** task (ReverseCopy, Rotate).
-   Sort-style tasks did not benefit (`sort_task_loops.py`).
+3. task is **ReverseCopy-style position reversal**. Rotate (`rotate_replicate.py`,
+   6 seeds) is NULL: n=2 +0.81pp z=+0.07, n=4 -1.31pp z=+0.22. The
+   3-seed Rotate win in `rotate_task_loops.py` was a single-seed
+   artifact. Sort-style tasks did not benefit either
+   (`sort_task_loops.py`). Treat task-class generalization as
+   **not yet established** — ship `n=1` for any task other than
+   ReverseCopy until you replicate at 6 seeds.
 4. baseline `n=1` accuracy is in `[94%, 99%]` — i.e. there is real
    headroom for recurrence to close. If `n=1` is already ≥ 99.5%
    (saturated) loops only add variance.

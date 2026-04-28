@@ -43,8 +43,11 @@ claims downgraded here.
   seed collapses to 72% — out of regime. Green zone is **pl in {6, 8}**
   at dim=128.
 - **Task-class matters more than depth.** Sort is NULL/HURTS for all
-  n_loops (`sort_task_loops*`). Routing tasks (ReverseCopy, Rotate)
-  are where recurrence even has a chance to help.
+  n_loops (`sort_task_loops*`). Rotate is also NULL at 6 seeds
+  (`rotate_replicate.py`: n=2 +0.81pp z=+0.07, n=4 -1.31pp z=+0.22 —
+  the original 3-seed +6.36pp Rotate win was a baseline-seed artifact).
+  ReverseCopy is the ONLY task class where 6-seed audit confirms a
+  recurrence win.
 - **Rotate at saturation: loops only hurt.** `rotate_hard` at pl=12
   (n=1 already 99.93%) shows n=8 -6.13pp. Real, not seed noise.
 - **Loop advantage scales with task difficulty in the regime where

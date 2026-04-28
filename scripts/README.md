@@ -70,7 +70,8 @@ For per-script results and exact log output, read [`RESULTS.md`](../RESULTS.md).
 | 55 | `replicate_pl8_n4.py` | depth | **CONFIRMS the rock-solid win.** 6-seed audit at dim=128 pl=8 STEPS=2000: n=1=98.41+/-0.85%, n=4=**99.81+/-0.17%** (+1.40pp acc, z=-1.35 ce, **5x variance collapse**). All 6 n=4 seeds reach >=99.51% acc. The dim_x_loops_at_hard z=-3.20 effect survives at proper sample size. This is the SINGLE rock-solid recurrence win on the personal branch. |
 | 56 | `pl_sweep_n4.py` | depth | Maps the SHAPE of the winning region around dim=128 pl=8 n=4. Sweeps pl in {6,8,10} x n in {1,4} at 6 seeds (36 runs). Tells whether the recipe ships as "n_loops=4 at dim=128 pl=8 only" or "n_loops=4 at dim=128 pl in [6,10]". |
 | 57 | `rotate_replicate.py` | depth | 6-seed audit of the original 3-seed Rotate finding (n=2 +6.36pp). Re-runs Rotate at dim=128 pl=8 k=4 STEPS=2000 with n in {1,2,4}. Decides whether Rotate has its own task-specific sweet spot (n=2) or whether the 3-seed claim was a cluster artifact like harder_n8. |
-| 58 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
+| 58 | `accel_curve.py` | depth | Acceleration vs asymptote: at dim=128 pl=8, 6 seeds, sweep STEPS in {500,1000,1500,2000,3000} for n in {1,4}. Quantifies how much earlier n=4 reaches n=1@STEPS=2000 quality. Step ratio determines whether the +1.40pp ship win is also a training-cost win. ~5h. |
+| 59 | `profile_trace.py` | infra | cProfile of forward+backward for hotspot inspection. |
 
 ## Tests
 

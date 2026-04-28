@@ -10,10 +10,21 @@ on:
   pull_request:
     branches: [personal]
   workflow_dispatch:
+    inputs:
+      run_long_experiments:
+        description: "Run long experiments (hours)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 jobs:
   smoke:
     runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: ${{ github.workspace }}
     steps:
       - uses: actions/checkout@v4
 
@@ -202,6 +213,10 @@ jobs:
 
       - name: Run rotate_replicate
         run: python -m scripts.rotate_replicate
+
+      - name: Run accel_curve (manual only)
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_long_experiments == 'true' }}
+        run: python -m scripts.accel_curve
 
       - name: Run profile_trace
         run: python -m scripts.profile_trace

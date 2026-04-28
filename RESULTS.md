@@ -1569,3 +1569,28 @@ to the decimal (98.41 +/- 0.85 -> 98.41 +/- 0.85 / 99.81 +/- 0.17 ->
 
 Updated ship-recipe green zone: dim=128, pl in {6, 8}, prelude=1 coda=2,
 STEPS=2000 -> set max_loop_iters=4. Outside this zone -> max_loop_iters=1.
+## rotate_replicate.py - 6-seed audit DOWNGRADES the rotate_task_loops claims
+
+Original rotate_task_loops.py (3 seeds, dim=128 pl=8 k=4 STEPS=2000):
+n=2 +6.36pp big win, n=4 -2.69pp.
+
+This script reruns at 6 seeds:
+
+| n_loops | acc                  | d_acc vs n=1 | d_std    | z_ce   | verdict |
+|---------|----------------------|--------------|----------|--------|---------|
+| 1       | 96.57 +/- 6.98 %     | -            | -        | -      | baseline (one seed at 82.45%) |
+| 2       | 97.38 +/- 5.88 %     | +0.81pp      | -1.10pp  | +0.07  | barely helps |
+| 4       | 95.26 +/- 7.66 %     | -1.31pp      | +0.68pp  | +0.22  | hurts |
+
+ROTATE IS NULL AT 6 SEEDS. The original n=2 +6.36pp win was a 3-seed
+artifact: one bad n=1 seed (seed=0, 82.45%) pulled the baseline mean
+down at small N. The variance reduction from rotate_task_loops also
+disappeared - n=2 std is 5.88pp not 0.10pp.
+
+Implication for SHIP_RECIPE: the green-zone win does NOT generalize
+across all "routing tasks" - it is specific to ReverseCopy-style
+position reversal. Rotate's median seed already saturates near 99.7%,
+putting it in the "no headroom" regime where loops only add variance.
+
+Updated task-class rule: ship n=4 only on ReverseCopy-style tasks at
+dim=128 pl in {6,8}. For Rotate or unknown task class, ship n=1.
